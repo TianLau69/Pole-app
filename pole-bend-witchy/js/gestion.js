@@ -1,24 +1,10 @@
 /* =========================================
    GESTION DES DONNÉES PERSONNELLES
+   (les clés et helpers de stockage viennent de js/store.js,
+   chargé avant ce fichier)
 ========================================= */
 
-const CUSTOM_EXERCISES_KEY = "pole_custom_exercises";
-const HIDDEN_EXERCISES_KEY = "pole_hidden_exercises";
 const POLE_FIGURES_KEY = "pole_figures";
-
-
-function getJSON(key, fallback = []) {
-  try {
-    return JSON.parse(localStorage.getItem(key)) || fallback;
-  } catch {
-    return fallback;
-  }
-}
-
-
-function saveJSON(key, value) {
-  localStorage.setItem(key, JSON.stringify(value));
-}
 
 
 /* =========================================
@@ -105,8 +91,25 @@ document
 
 
 /* =========================================
-   AJOUT EXERCICE
+   SÉLECTION D'UNE PHOTO DEPUIS LE TÉLÉPHONE
 ========================================= */
+
+function pickImage(callback) {
+
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/jpeg,image/png,image/webp";
+
+  input.onchange = async () => {
+    const file = input.files[0];
+    if (!file) return;
+    const dataURL = await fileToDataURL(file);
+    callback(dataURL);
+  };
+
+  input.click();
+
+}
 
 async function addExercise() {
 
@@ -139,7 +142,7 @@ async function addExercise() {
 
 
   const exercises =
-    getJSON(CUSTOM_EXERCISES_KEY);
+    getCustomExercises();
 
 
   exercises.push({
@@ -165,10 +168,7 @@ async function addExercise() {
   });
 
 
-  saveJSON(
-    CUSTOM_EXERCISES_KEY,
-    exercises
-  );
+  saveCustomExercises(exercises);
 
 
   document.getElementById("exerciseName").value = "";
@@ -200,13 +200,10 @@ function deleteExercise(id) {
   }
 
   const exercises =
-    getJSON(CUSTOM_EXERCISES_KEY)
+    getCustomExercises()
       .filter(e => e.id !== id);
 
-  saveJSON(
-    CUSTOM_EXERCISES_KEY,
-    exercises
-  );
+  saveCustomExercises(exercises);
 
   renderCustomExercises();
 
@@ -217,13 +214,27 @@ function deleteExercise(id) {
    EXERCICES PERSONNELS
 ========================================= */
 
+function changeCustomExercisePhoto(id) {
+
+  pickImage(dataURL => {
+    const exercises = getCustomExercises();
+    const exercise = exercises.find(e => e.id === id);
+    if (!exercise) return;
+    exercise.image = dataURL;
+    saveCustomExercises(exercises);
+    renderCustomExercises();
+  });
+
+}
+
+
 function renderCustomExercises() {
 
   const container =
     document.getElementById("customExercisesList");
 
   const exercises =
-    getJSON(CUSTOM_EXERCISES_KEY);
+    getCustomExercises();
 
 
   if (!exercises.length) {
@@ -253,12 +264,21 @@ function renderCustomExercises() {
           <strong>${escapeHTML(exercise.name)}</strong>
 
           <span>
-            ${escapeHTML(exercise.muscles || "Muscles non précisés")}
+            ${{renfo:"Renfo",jambes:"Souplesse jambes",bras:"Souplesse bras"}[exercise.program] || exercise.program}
+            ${exercise.muscles ? " · " + escapeHTML(exercise.muscles) : ""}
           </span>
 
         </div>
 
         <div class="manage-item-actions">
+
+          <button
+            class="small-btn"
+            onclick="changeCustomExercisePhoto('${exercise.id}')">
+
+            📷 Photo
+
+          </button>
 
           <button
             class="small-btn danger"
@@ -284,7 +304,7 @@ function renderCustomExercises() {
 function toggleDefaultExercise(id) {
 
   const hidden =
-    getJSON(HIDDEN_EXERCISES_KEY);
+    getHiddenIds();
 
   const index =
     hidden.indexOf(id);
@@ -301,10 +321,7 @@ function toggleDefaultExercise(id) {
   }
 
 
-  saveJSON(
-    HIDDEN_EXERCISES_KEY,
-    hidden
-  );
+  setHiddenIds(hidden);
 
 
   renderDefaultExercises();
@@ -312,49 +329,20 @@ function toggleDefaultExercise(id) {
 }
 
 
-/*
-   Cette fonction lit les programmes
-   présents dans programs.js.
-*/
+function changeDefaultExercisePhoto(id) {
 
-function getDefaultExercises() {
-
-  if (typeof programs === "undefined") {
-    return [];
-  }
-
-
-  const result = [];
-
-
-  programs.forEach(program => {
-
-    let localIndex = 0;
-
-    (program.sections || []).forEach(section => {
-
-      (section[1] || []).forEach(exercise => {
-
-        result.push({
-
-          id: `${program.id}_${localIndex}`,
-
-          name: exercise[0],
-
-          program: program.id
-
-        });
-
-        localIndex++;
-
-      });
-
-    });
-
+  pickImage(dataURL => {
+    setImageOverride(id, dataURL);
+    renderDefaultExercises();
   });
 
+}
 
-  return result;
+
+function resetDefaultExercisePhoto(id) {
+
+  removeImageOverride(id);
+  renderDefaultExercises();
 
 }
 
@@ -365,10 +353,13 @@ function renderDefaultExercises() {
     document.getElementById("defaultExercisesList");
 
   const hidden =
-    getJSON(HIDDEN_EXERCISES_KEY);
+    getHiddenIds();
+
+  const overrides =
+    getImageOverrides();
 
   const exercises =
-    getDefaultExercises();
+    getAllDefaultExercises();
 
 
   if (!exercises.length) {
@@ -389,10 +380,18 @@ function renderDefaultExercises() {
       const isHidden =
         hidden.includes(exercise.id);
 
+      const hasOverride =
+        Boolean(overrides[exercise.id]);
+
 
       return `
 
         <div class="manage-item">
+
+          <img
+            src="${exercise.image}"
+            alt=""
+            onerror="this.style.visibility='hidden'">
 
           <div class="manage-item-info">
 
@@ -402,22 +401,44 @@ function renderDefaultExercises() {
 
             <span>
               ${{renfo:"Renfo",jambes:"Souplesse jambes",bras:"Souplesse bras"}[exercise.program] || exercise.program}
+              ${hasOverride ? " · photo perso" : " · " + exercise.image.split("/").pop()}
             </span>
 
           </div>
 
+          <div class="manage-item-actions">
 
-          <button
-            class="small-btn"
-            onclick="toggleDefaultExercise('${exercise.id}')">
+            <button
+              class="small-btn"
+              onclick="changeDefaultExercisePhoto('${exercise.id}')">
+
+              📷 Photo
+
+            </button>
 
             ${
-              isHidden
-              ? "Réactiver"
-              : "Masquer"
+              hasOverride
+              ? `<button
+                  class="small-btn"
+                  onclick="resetDefaultExercisePhoto('${exercise.id}')">
+                  ↺ Photo d'origine
+                </button>`
+              : ""
             }
 
-          </button>
+            <button
+              class="small-btn"
+              onclick="toggleDefaultExercise('${exercise.id}')">
+
+              ${
+                isHidden
+                ? "Réactiver"
+                : "Masquer"
+              }
+
+            </button>
+
+          </div>
 
         </div>
 
@@ -590,6 +611,20 @@ function deleteFigure(id) {
 }
 
 
+function changeFigurePhoto(id) {
+
+  pickImage(dataURL => {
+    const figures = getJSON(POLE_FIGURES_KEY);
+    const figure = figures.find(f => f.id === id);
+    if (!figure) return;
+    figure.image = dataURL;
+    saveJSON(POLE_FIGURES_KEY, figures);
+    renderFigures();
+  });
+
+}
+
+
 /* =========================================
    GALERIE FIGURES
 ========================================= */
@@ -671,6 +706,14 @@ function renderFigures() {
 
 
         <div class="manage-item-actions">
+
+          <button
+            class="small-btn"
+            onclick="changeFigurePhoto('${figure.id}')">
+
+            📷 Photo
+
+          </button>
 
           <button
             class="small-btn"

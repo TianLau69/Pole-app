@@ -129,6 +129,7 @@
 
     .manage-item-actions {
       display: flex;
+      flex-wrap: wrap;
       gap: 6px;
     }
 
@@ -224,8 +225,8 @@
         <label>Programme</label>
         <select id="exerciseProgram">
           <option value="renfo">Renfo</option>
-          <option value="legs">Souplesse jambes</option>
-          <option value="arms">Souplesse bras</option>
+          <option value="jambes">Souplesse jambes</option>
+          <option value="bras">Souplesse bras</option>
         </select>
       </div>
 
@@ -331,6 +332,7 @@
 
 
 <script src="data/programs.js"></script>
+<script src="js/store.js"></script>
 <script src="js/gestion.js"></script>
 <script src="js/navigation.js"></script>
 </body>

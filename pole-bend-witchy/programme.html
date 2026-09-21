@@ -473,6 +473,7 @@ h1{margin:0;font-size:28px}
 
 
 <script src="data/programs.js"></script>
+<script src="js/store.js"></script>
 
 <script>
 let activeProgram = "renfo";
@@ -499,21 +500,7 @@ function getExercises(){
 
   if (!program) return [];
 
-  return program.sections.flatMap(
-    section =>
-      section[1].map(
-        exercise => ({
-          name: exercise[0],
-          duration: exercise[1],
-          kind: exercise[2],
-          instructions: exercise[3] || "",
-          seconds:
-            Number(exercise[4]) ||
-            parseDuration(exercise[1]),
-          section: section[0]
-        })
-      )
-  );
+  return getVisibleExercises(activeProgram);
 }
 
 
@@ -590,14 +577,8 @@ function saveDone(value){
 }
 
 
-function imageFor(index){
-
-  return (
-    "assets/exercises/" +
-    String(index + 1).padStart(2,"0") +
-    ".jpg"
-  );
-
+function imgSrc(exercise){
+  return exercise && exercise.image ? exercise.image : "";
 }
 
 
@@ -758,32 +739,25 @@ function renderExerciseList(){
   }
 
   let html = "";
+  let currentSection = null;
 
-  getProgram().sections.forEach(
-    section => {
+  exercises.forEach(
+    (exercise, index) => {
 
-      html +=
-        '<div class="section">' +
-        '<div class="sectionTitle">' +
-        escapeHTML(section[0]) +
-        '</div>';
+      if (exercise.section !== currentSection) {
+        if (currentSection !== null) html += "</div>";
+        currentSection = exercise.section;
+        html +=
+          '<div class="section">' +
+          '<div class="sectionTitle">' +
+          escapeHTML(currentSection) +
+          '</div>';
+      }
 
-      section[1].forEach(
-        raw => {
+      const done =
+        getDone().includes(index);
 
-          const index =
-            exercises.findIndex(
-              e =>
-                e.name === raw[0]
-            );
-
-          const exercise =
-            exercises[index];
-
-          const done =
-            getDone().includes(index);
-
-          html += `
+      html += `
 
             <div
               class="exercise"
@@ -792,7 +766,7 @@ function renderExerciseList(){
               <div class="thumb">
 
                 <img
-                  src="${imageFor(index)}"
+                  src="${imgSrc(exercise)}"
                   alt=""
                   onerror="this.style.display='none'">
 
@@ -819,12 +793,10 @@ function renderExerciseList(){
 
             </div>
           `;
-        }
-      );
-
-      html += "</div>";
     }
   );
+
+  if (currentSection !== null) html += "</div>";
 
   list.innerHTML = html;
 
@@ -943,7 +915,7 @@ function openSessionExercise(){
 
   visual.innerHTML = `
     <img
-      src="${imageFor(index)}"
+      src="${imgSrc(exercise)}"
       alt=""
       onerror="this.style.display='none'">
   `;
