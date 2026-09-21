@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+  <meta charset="utf-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+  <meta name="theme-color" content="#090809">
+
+  <title>Programme Pole — Renfo & Souplesse</title>
+
+  <style>
+
+    :root{
+      --black:#090809;
+      --black2:#100c0f;
+      --panel:#151114;
+      --panel2:#1b1418;
+
+      --cream:#f6eee8;
+      --muted:#b9aaa9;
+
+      --carmin:#a3133d;
+      --carmin2:#cf315d;
+
+      --brown:#704735;
+      --brown2:#9b6b52;
+
+      --line:#34252b;
+    }
+
+
+    *{
+      box-sizing:border-box;
+    }
+
+
+    html,
+    body{
+      margin:0;
+      min-height:100%;
+      background:var(--black);
+      color:var(--cream);
+
+      font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    }
+
+
+    body{
+      min-height:100vh;
+    }
+
+
+    button{
+      font:inherit;
+      color:inherit;
+    }
+
+
+    button:focus-visible{
+      outline:2px solid var(--carmin2);
+      outline-offset:3px;
+    }
+
+
+    .app{
+      max-width:620px;
+      margin:auto;
+      min-height:100vh;
+
+      padding:
+        0
+        18px
+        90px;
+    }
+
+
+    /* =========================
+       EN-TÊTE
+    ========================= */
+
+    .top{
+      padding:28px 4px 12px;
+      text-align:center;
+    }
+
+
+    .brand{
+      font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+      font-size:31px;
+      font-weight:700;
+      letter-spacing:-.5px;
+    }
+
+
+    .kicker{
+      font-size:11px;
+      letter-spacing:3px;
+      text-transform:uppercase;
+
+      color:#cbbab2;
+
+      margin-top:5px;
+    }
+
+
+    .divider{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+
+      margin:13px 0 4px;
+    }
+
+
+    .divider:before,
+    .divider:after{
+      content:"";
+
+      height:1px;
+
+      background:
+        linear-gradient(
+          90deg,
+          transparent,
+          var(--brown2)
+        );
+
+      width:62px;
+    }
+
+
+    .divider:after{
+      transform:scaleX(-1);
+    }
+
+
+    /* =========================
+       PHOTO ACCUEIL
+    ========================= */
+
+    .hero{
+      min-height:260px;
+
+      display:flex;
+      align-items:center;
+      justify-content:center;
+
+      position:relative;
+      overflow:hidden;
+
+      border-radius:24px;
+
+      background:
+        radial-gradient(
+          circle at center,
+          #2c0a18 0,
+          #16070e 58%,
+          #090809 76%
+        );
+    }
+
+
+    .hero img{
+      position:relative;
+
+      width:100%;
+      height:260px;
+
+      object-fit:cover;
+
+      display:block;
+
+      border-radius:24px;
+    }
+
+
+    .heroFallback{
+      width:100%;
+      height:260px;
+
+      display:flex;
+      align-items:center;
+      justify-content:center;
+
+      text-align:center;
+
+      color:#8f7d80;
+      font-size:13px;
+
+      border:1px dashed #3c2930;
+      border-radius:24px;
+    }
+
+
+    .heroCopy{
+      text-align:center;
+      margin-top:18px;
+    }
+
+
+    .heroCopy h2{
+      font-family:Georgia,serif;
+
+      font-size:21px;
+      font-weight:500;
+
+      margin:0;
+    }
+
+
+    .heroCopy p{
+      color:var(--muted);
+
+      font-size:13px;
+
+      margin:
+        7px
+        0
+        20px;
+    }
+
+
+    /* =========================
+       CARTES PROGRAMMES
+    ========================= */
+
+    .menu{
+      display:grid;
+      gap:12px;
+    }
+
+
+    .menuCard{
+      display:grid;
+
+      grid-template-columns:
+        56px
+        1fr
+        24px;
+
+      align-items:center;
+
+      gap:14px;
+
+      padding:
+        14px
+        15px;
+
+      border:
+        1px solid
+        var(--line);
+
+      border-radius:18px;
+
+      background:
+        linear-gradient(
+          110deg,
+          #170f13,
+          #0f0c0e
+        );
+
+      cursor:pointer;
+
+      text-align:left;
+
+      transition:.18s;
+
+      width:100%;
+    }
+
+
+    .menuCard:hover{
+      transform:translateY(-1px);
+
+      border-color:#603240;
+    }
+
+
+    .menuCard.primary{
+      border-color:#6f1733;
+
+      background:
+        linear-gradient(
+          110deg,
+          #2a0a17,
+          #130b10
+        );
+    }
+
+
+    .menuCard.brown{
+      border-color:#573c31;
+    }
+
+
+    .menuIcon{
+      width:56px;
+      height:56px;
+
+      border-radius:15px;
+
+      background:#090809;
+
+      display:grid;
+      place-items:center;
+
+      border:
+        1px solid
+        #302329;
+
+      color:#d6a08a;
+
+      font-family:Georgia,serif;
+
+      font-size:14px;
+
+      text-align:center;
+    }
+
+
+    .menuTitle{
+      font-family:Georgia,serif;
+
+      font-size:19px;
+    }
+
+
+    .menuMeta{
+      font-size:12px;
+
+      color:var(--muted);
+
+      margin-top:3px;
+    }
+
+
+    .chev{
+      font-size:25px;
+
+      color:#c98c75;
+
+      text-align:center;
+    }
+
+
+    /* =========================
+       AUTRES PAGES
+    ========================= */
+
+    .quickMenu{
+      margin-top:14px;
+    }
+
+
+    .quickCard{
+      display:flex;
+      align-items:center;
+
+      gap:14px;
+
+      width:100%;
+
+      padding:
+        13px
+        15px;
+
+      border:
+        1px solid
+        var(--line);
+
+      border-radius:17px;
+
+      background:#100d0f;
+
+      cursor:pointer;
+
+      text-align:left;
+
+      margin-bottom:9px;
+
+      transition:.18s;
+    }
+
+
+    .quickCard:hover{
+      border-color:#603240;
+
+      transform:translateY(-1px);
+    }
+
+
+    .quickIcon{
+      width:43px;
+      height:43px;
+
+      flex:0 0 43px;
+
+      border-radius:13px;
+
+      display:grid;
+      place-items:center;
+
+      background:#090809;
+
+      border:
+        1px solid
+        #302329;
+
+      color:#d6a08a;
+
+      font-size:13px;
+    }
+
+
+    /* =========================
+       PETITE PHRASE
+    ========================= */
+
+    .quote{
+      text-align:center;
+
+      color:#a87864;
+
+      font-family:Georgia,serif;
+
+      font-style:italic;
+
+      font-size:13px;
+
+      margin:
+        28px
+        0
+        4px;
+    }
+
+
+    /* =========================
+       NAVIGATION BAS
+    ========================= */
+
+    .bottom{
+      position:fixed;
+
+      bottom:0;
+      left:0;
+      right:0;
+
+      background:
+        rgba(
+          9,
+          8,
+          9,
+          .94
+        );
+
+      border-top:
+        1px solid
+        var(--line);
+
+      backdrop-filter:blur(12px);
+
+      z-index:100;
+    }
+
+
+    .bottomIn{
+      max-width:620px;
+
+      margin:auto;
+
+      display:flex;
+
+      justify-content:space-around;
+
+      padding:
+        9px
+        10px
+        10px;
+    }
+
+
+    .navBtn{
+      border:0;
+
+      background:none;
+
+      color:#75696b;
+
+      font-size:11px;
+
+      display:grid;
+
+      gap:3px;
+
+      justify-items:center;
+
+      cursor:pointer;
+
+      padding:
+        3px
+        8px;
+    }
+
+
+    .navBtn.active{
+      color:#e33665;
+    }
+
+
+    /* =========================
+       MOBILE
+    ========================= */
+
+    @media(max-width:480px){
+
+      .app{
+        padding-left:14px;
+        padding-right:14px;
+      }
+
+
+      .brand{
+        font-size:28px;
+      }
+
+
+      .hero{
+        min-height:230px;
+      }
+
+
+      .hero img,
+      .heroFallback{
+        height:230px;
+      }
+
+
+      .menuCard{
+        grid-template-columns:
+          48px
+          1fr
+          22px;
+
+        gap:12px;
+
+        padding:
+          12px;
+        13px;
+      }
+
+
+      .menuIcon{
+        width:48px;
+        height:48px;
+      }
+
+
+      .menuTitle{
+        font-size:17px;
+      }
+
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+
+<div class="app">
+
+
+  <!-- =========================
+       ACCUEIL
+  ========================= -->
+
+  <div class="top">
+
+    <div class="brand">
+      Programme Pole
+    </div>
+
+    <div class="kicker">
+      Renfo & souplesse
+    </div>
+
+    <div class="divider"></div>
+
+  </div>
+
+
+  <!-- PHOTO ACCUEIL -->
+
+  <div class="hero" id="homeHero">
+
+    <img
+      src="assets/accueil.jpg"
+      alt="Photo d'accueil"
+      onerror="this.style.display='none';document.getElementById('heroFallback').style.display='flex';">
+
+    <div
+      id="heroFallback"
+      class="heroFallback"
+      style="display:none;">
+
+      Photo d'accueil à ajouter
+
+    </div>
+
+  </div>
+
+
+  <div class="heroCopy">
+
+    <h2>
+      Plus forte · Plus souple · Plus libre
+    </h2>
+
+    <p>
+      Un entraînement pensé pour accompagner ta pratique de la pole.
+    </p>
+
+  </div>
+
+
+  <!-- =========================
+       PROGRAMMES
+  ========================= -->
+
+  <div class="menu">
+
+
+    <button
+      type="button"
+      class="menuCard primary"
+      onclick="location.href='programme.html?program=renfo'">
+
+      <div class="menuIcon">
+        RENFO
+      </div>
+
+      <div>
+
+        <div class="menuTitle">
+          Renfo
+        </div>
+
+        <div class="menuMeta">
+          45 min · force, grip & gainage
+        </div>
+
+      </div>
+
+      <div class="chev">
+        ›
+      </div>
+
+    </button>
+
+
+    <button
+      type="button"
+      class="menuCard"
+      onclick="location.href='programme.html?program=jambes'">
+
+      <div class="menuIcon">
+        JAMBES
+      </div>
+
+      <div>
+
+        <div class="menuTitle">
+          Souplesse jambes
+        </div>
+
+        <div class="menuMeta">
+          20 min · objectif V / needle
+        </div>
+
+      </div>
+
+      <div class="chev">
+        ›
+      </div>
+
+    </button>
+
+
+    <button
+      type="button"
+      class="menuCard brown"
+      onclick="location.href='programme.html?program=bras'">
+
+      <div class="menuIcon">
+        BRAS
+      </div>
+
+      <div>
+
+        <div class="menuTitle">
+          Souplesse bras
+        </div>
+
+        <div class="menuMeta">
+          20 min · objectif ballerina
+        </div>
+
+      </div>
+
+      <div class="chev">
+        ›
+      </div>
+
+    </button>
+
+
+  </div>
+
+
+  <!-- =========================
+       AUTRES PAGES
+  ========================= -->
+
+  <div class="quickMenu">
+
+
+    <button
+      type="button"
+      class="quickCard"
+      onclick="location.href='gestion.html'">
+
+      <div class="quickIcon">
+        EX
+      </div>
+
+      <div>
+
+        <div class="menuTitle">
+          Mes exercices
+        </div>
+
+        <div class="menuMeta">
+          Ajouter, modifier ou masquer des exercices
+        </div>
+
+      </div>
+
+      <div class="chev">
+        ›
+      </div>
+
+    </button>
+
+
+    <button
+      type="button"
+      class="quickCard"
+      onclick="location.href='figures.html'">
+
+      <div class="quickIcon">
+        POLE
+      </div>
+
+      <div>
+
+        <div class="menuTitle">
+          Mes figures pole
+        </div>
+
+        <div class="menuMeta">
+          Galerie, favoris et figures maîtrisées
+        </div>
+
+      </div>
+
+      <div class="chev">
+        ›
+      </div>
+
+    </button>
+
+
+    <button
+      type="button"
+      class="quickCard"
+      onclick="location.href='pole-playlists/playlists.html'">
+
+      <div class="quickIcon">
+        PLAY
+      </div>
+
+      <div>
+
+        <div class="menuTitle">
+          Mes playlists
+        </div>
+
+        <div class="menuMeta">
+          Créer mes séances personnalisées
+        </div>
+
+      </div>
+
+      <div class="chev">
+        ›
+      </div>
+
+    </button>
+
+
+  </div>
+
+
+  <div class="quote">
+    Chaque effort compte.
+  </div>
+
+
+</div>
+
+
+<!-- =========================
+     NAVIGATION
+========================= -->
+
+<div class="bottom">
+
+  <div class="bottomIn">
+
+
+    <button
+      type="button"
+      class="navBtn active"
+      onclick="window.scrollTo({top:0,behavior:'smooth'})">
+
+      Accueil
+
+    </button>
+
+
+    <button
+      type="button"
+      class="navBtn"
+      onclick="location.href='gestion.html'">
+
+      Exercices
+
+    </button>
+
+
+    <button
+      type="button"
+      class="navBtn"
+      onclick="location.href='figures.html'">
+
+      Figures
+
+    </button>
+
+
+    <button
+      type="button"
+      class="navBtn"
+      onclick="location.href='pole-playlists/playlists.html'">
+
+      Playlists
+
+    </button>
+
+
+  </div>
+
+</div>
+
+<script src="js/navigation.js"></script>
+</body>
+
+</html>

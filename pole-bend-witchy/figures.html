@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0">
+
+  <title>Mes figures — Programme Pole</title>
+
+  <link rel="stylesheet" href="css/style.css">
+
+  <style>
+
+    body {
+      min-height: 100vh;
+    }
+
+    .figures-page {
+      max-width: 1000px;
+      margin: auto;
+      padding: 25px 18px 80px;
+    }
+
+    .figures-header {
+      margin-bottom: 25px;
+    }
+
+    .figure-filters {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .figure-filter {
+      padding: 9px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.15);
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    .figure-filter.active {
+      background: #a91f4e;
+      border-color: #a91f4e;
+    }
+
+    .figure-grid {
+      display: grid;
+      grid-template-columns:
+        repeat(auto-fill, minmax(180px, 1fr));
+
+      gap: 14px;
+    }
+
+    .figure-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 18px;
+      border: 1px solid rgba(210,65,110,.25);
+      background: #120c10;
+    }
+
+    .figure-card img {
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      object-fit: cover;
+      display: block;
+      background: #0c080a;
+    }
+
+    .figure-placeholder {
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      opacity: .45;
+    }
+
+    .figure-info {
+      padding: 12px;
+    }
+
+    .figure-name {
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .figure-level {
+      opacity: .7;
+      font-size: .9rem;
+    }
+
+    .figure-status {
+      margin-top: 7px;
+      font-size: .85rem;
+    }
+
+    .favorite {
+      position: absolute;
+      top: 9px;
+      right: 9px;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 0;
+      background: rgba(0,0,0,.7);
+      color: #f0c56a;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+<div class="figures-page">
+
+  <div class="figures-header">
+
+    <button
+      onclick="location.href='index.html'">
+
+      ← Retour
+
+    </button>
+
+    <h1>Mes figures de pole</h1>
+
+    <p>
+      Ma bibliothèque personnelle de figures.
+    </p>
+
+  </div>
+
+
+  <div class="figure-filters">
+
+    <button
+      class="figure-filter active"
+      onclick="setFilter('all', this)">
+
+      Toutes
+
+    </button>
+
+    <button
+      class="figure-filter"
+      onclick="setFilter('favorites', this)">
+
+      ★ Préférées
+
+    </button>
+
+    <button
+      class="figure-filter"
+      onclick="setFilter('mastered', this)">
+
+      ✓ Maîtrisées
+
+    </button>
+
+    <button
+      class="figure-filter"
+      onclick="setFilter('todo', this)">
+
+      À travailler
+
+    </button>
+
+  </div>
+
+
+  <div
+    id="figureGrid"
+    class="figure-grid">
+  </div>
+
+</div>
+
+
+<script>
+
+const FIGURES_KEY = "pole_figures";
+
+let currentFilter = "all";
+
+
+function getFigures() {
+
+  try {
+
+    return JSON.parse(
+      localStorage.getItem(FIGURES_KEY)
+    ) || [];
+
+  } catch {
+
+    return [];
+
+  }
+
+}
+
+
+function setFilter(filter, button) {
+
+  currentFilter = filter;
+
+
+  document
+    .querySelectorAll(".figure-filter")
+    .forEach(
+      b => b.classList.remove("active")
+    );
+
+
+  button.classList.add("active");
+
+
+  renderGallery();
+
+}
+
+
+function toggleFavorite(id) {
+
+  const figures = getFigures();
+
+  const figure =
+    figures.find(f => f.id === id);
+
+  if (!figure) return;
+
+  figure.favorite =
+    !figure.favorite;
+
+  localStorage.setItem(
+    FIGURES_KEY,
+    JSON.stringify(figures)
+  );
+
+  renderGallery();
+
+}
+
+
+function renderGallery() {
+
+  const grid =
+    document.getElementById("figureGrid");
+
+
+  let figures = getFigures();
+
+
+  if (currentFilter === "favorites") {
+
+    figures =
+      figures.filter(f => f.favorite);
+
+  }
+
+
+  if (currentFilter === "mastered") {
+
+    figures =
+      figures.filter(f => f.mastered);
+
+  }
+
+
+  if (currentFilter === "todo") {
+
+    figures =
+      figures.filter(f => !f.mastered);
+
+  }
+
+
+  if (!figures.length) {
+
+    grid.innerHTML = `
+      <div style="opacity:.6">
+        Aucune figure dans cette catégorie.
+      </div>
+    `;
+
+    return;
+
+  }
+
+
+  grid.innerHTML =
+    figures.map(figure => `
+
+      <article class="figure-card">
+
+        <button
+          class="favorite"
+          onclick="toggleFavorite('${figure.id}')">
+
+          ${figure.favorite ? "★" : "☆"}
+
+        </button>
+
+
+        ${
+          figure.image
+
+          ? `<img
+               src="${figure.image}"
+               alt="${figure.name}">`
+
+          : `<div class="figure-placeholder">
+               Photo à ajouter
+             </div>`
+        }
+
+
+        <div class="figure-info">
+
+          <div class="figure-name">
+            ${escapeHTML(figure.name)}
+          </div>
+
+          <div class="figure-level">
+            ${escapeHTML(figure.level)}
+          </div>
+
+          <div class="figure-status">
+
+            ${
+              figure.mastered
+              ? "✓ Maîtrisée"
+              : "○ À travailler"
+            }
+
+          </div>
+
+        </div>
+
+      </article>
+
+    `).join("");
+
+}
+
+
+function escapeHTML(value) {
+
+  return String(value || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+
+}
+
+
+renderGallery();
+
+</script>
+<script src="js/navigation.js"></script>
+</body>
+</html>

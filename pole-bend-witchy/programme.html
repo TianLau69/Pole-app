@@ -1,0 +1,1199 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#090809">
+<title>Programme — Programme Pole</title>
+
+<style>
+:root{
+  --black:#090809;
+  --panel:#100d0f;
+  --panel2:#151114;
+  --cream:#f6eee8;
+  --muted:#9f8d90;
+  --line:#34252b;
+  --carmin:#a3133d;
+  --carmin2:#cf315d;
+  --brown:#704735;
+  --brown2:#9b6b52;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--black);color:var(--cream)}
+body{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding-bottom:76px}
+button{font:inherit;color:inherit}
+button:focus-visible{outline:2px solid var(--carmin2);outline-offset:3px}
+
+.page{max-width:760px;margin:auto;padding:18px 16px 30px}
+
+.top{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:18px;
+}
+
+.back{
+  width:40px;height:40px;
+  border:1px solid var(--line);
+  background:#120d10;
+  border-radius:50%;
+  cursor:pointer;
+  font-size:24px;
+  line-height:1;
+}
+
+.titleBlock{flex:1}
+h1,h2,h3{font-family:Georgia,"Times New Roman",serif;font-weight:500}
+h1{margin:0;font-size:28px}
+.sub{color:var(--muted);font-size:13px;margin-top:4px}
+
+.hero{
+  border:1px solid var(--line);
+  border-radius:22px;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at center,#2b0b18,#100c0f 68%);
+  margin-bottom:14px;
+}
+
+.heroImg{
+  width:100%;
+  height:230px;
+  display:block;
+  object-fit:cover;
+}
+
+.heroText{
+  padding:16px;
+  text-align:center;
+}
+
+.heroText h2{margin:0 0 5px;font-size:21px}
+.heroText p{margin:0;color:var(--muted);font-size:13px}
+
+.card{
+  border:1px solid var(--line);
+  border-radius:20px;
+  background:var(--panel);
+  padding:16px;
+  margin-bottom:14px;
+}
+
+.progressHead{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+}
+
+.progressLabel{font-size:13px;color:var(--muted)}
+.progressPct{font-weight:800}
+
+.bar{
+  height:8px;
+  background:#21171c;
+  border-radius:99px;
+  overflow:hidden;
+  margin-top:10px;
+}
+
+.fill{
+  height:100%;
+  width:0;
+  background:var(--carmin2);
+  border-radius:99px;
+  transition:width .2s;
+}
+
+.primary{
+  width:100%;
+  border:1px solid var(--carmin);
+  background:var(--carmin);
+  color:#fff;
+  border-radius:999px;
+  padding:13px 16px;
+  font-weight:800;
+  cursor:pointer;
+  margin-top:14px;
+}
+
+.secondary{
+  width:100%;
+  border:1px solid var(--line);
+  background:#120d10;
+  border-radius:999px;
+  padding:11px 16px;
+  cursor:pointer;
+  margin-top:9px;
+}
+
+.section{margin-top:18px}
+.sectionTitle{
+  font-family:Georgia,serif;
+  font-size:17px;
+  color:#d9c5bd;
+  margin-bottom:9px;
+}
+
+.exercise{
+  display:grid;
+  grid-template-columns:52px 1fr 28px;
+  gap:11px;
+  align-items:center;
+  padding:10px;
+  border:1px solid #2a2024;
+  border-radius:15px;
+  background:#120e11;
+  margin-bottom:7px;
+  cursor:pointer;
+}
+
+.exercise:hover{border-color:#5b3040}
+
+.thumb{
+  width:52px;height:52px;
+  border-radius:11px;
+  overflow:hidden;
+  background:#0b080a;
+  display:grid;
+  place-items:center;
+}
+
+.thumb img{width:100%;height:100%;object-fit:cover}
+
+.name{font-size:13px;font-weight:800}
+.meta{color:var(--muted);font-size:11px;margin-top:3px}
+
+.check{
+  width:19px;
+  height:19px;
+  accent-color:var(--carmin2);
+}
+
+.empty{
+  text-align:center;
+  color:var(--muted);
+  padding:18px 0;
+}
+
+.hidden{display:none!important}
+
+/* Modal exercice */
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(9,8,9,.96);
+  z-index:200;
+  display:none;
+  overflow:auto;
+}
+
+.modal.show{display:block}
+
+.modalIn{
+  max-width:650px;
+  min-height:100%;
+  margin:auto;
+  padding:18px;
+  display:flex;
+  flex-direction:column;
+}
+
+.modalTop{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.close{
+  border:1px solid var(--line);
+  background:#120d10;
+  border-radius:999px;
+  padding:9px 14px;
+  cursor:pointer;
+}
+
+.exerciseVisual{
+  width:min(100%, 420px);
+  aspect-ratio:1 / 1;
+  height:auto;
+  margin:18px auto;
+  border-radius:22px;
+  overflow:hidden;
+  background:
+    radial-gradient(circle,#2b0b18,#100c0f 68%);
+  display:grid;
+  place-items:center;
+}
+
+.exerciseVisual img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center bottom;
+  display:block;
+}
+
+.modalSection{
+  color:var(--muted);
+  font-size:12px;
+  text-align:center;
+}
+
+.modalTitle{
+  font:500 28px Georgia,serif;
+  text-align:center;
+  margin:7px 0;
+}
+
+.modalDescription{
+  color:#c8b9ba;
+  text-align:center;
+  line-height:1.55;
+  font-size:14px;
+}
+
+.timer{
+  text-align:center;
+  font-size:56px;
+  font-weight:900;
+  margin:20px 0 8px;
+}
+
+.modalActions{
+  display:flex;
+  gap:8px;
+}
+
+.modalActions button{flex:1}
+
+.bottom{
+  position:fixed;
+  left:0;right:0;bottom:0;
+  z-index:100;
+  background:rgba(9,8,9,.95);
+  border-top:1px solid var(--line);
+  backdrop-filter:blur(12px);
+}
+
+.bottomIn{
+  max-width:760px;
+  margin:auto;
+  display:flex;
+  justify-content:space-around;
+  padding:8px 8px 9px;
+}
+
+.navBtn{
+  border:0;
+  background:none;
+  color:#75696b;
+  font-size:11px;
+  cursor:pointer;
+  padding:5px 8px;
+}
+
+.navBtn.active{color:#e33665}
+
+@media(max-width:480px){
+  .page{padding-left:13px;padding-right:13px}
+  .heroImg{height:210px}
+  .exerciseVisual{
+    width:100%;
+    max-width:420px;
+    aspect-ratio:1 / 1;
+  }
+  .modalTitle{font-size:24px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="page">
+
+  <div class="top">
+    <button class="back" type="button" onclick="goHome()">‹</button>
+
+    <div class="titleBlock">
+      <h1 id="programTitle">Programme</h1>
+      <div class="sub" id="programSub"></div>
+    </div>
+  </div>
+
+  <div class="hero">
+    <img
+      id="heroImage"
+      class="heroImg"
+      src="assets/accueil.jpg"
+      alt="Programme Pole"
+      onerror="this.style.display='none'">
+
+    <div class="heroText">
+      <h2 id="heroTitle"></h2>
+      <p id="heroMeta"></p>
+    </div>
+  </div>
+
+  <div class="card">
+
+    <div class="progressHead">
+      <div class="progressLabel" id="progressLabel">0 / 0 exercices</div>
+      <div class="progressPct" id="progressPct">0%</div>
+    </div>
+
+    <div class="bar">
+      <div id="progressFill" class="fill"></div>
+    </div>
+
+    <button id="startButton" class="primary" type="button" onclick="startSession()">
+      Démarrer la séance
+    </button>
+
+    <button
+      id="toggleButton"
+      class="secondary"
+      type="button"
+      onclick="toggleExercises()">
+      Afficher les exercices
+    </button>
+
+  </div>
+
+  <div id="exerciseList" class="card hidden"></div>
+
+</div>
+
+
+<!-- Séance -->
+<div id="modal" class="modal">
+
+  <div class="modalIn">
+
+    <div class="modalTop">
+      <button
+        class="close"
+        type="button"
+        onclick="closeModal()">
+        Quitter
+      </button>
+
+      <span
+        id="sessionCount"
+        class="sub">
+      </span>
+    </div>
+
+    <div id="exerciseVisual" class="exerciseVisual"></div>
+
+    <div id="modalSection" class="modalSection"></div>
+
+    <h2 id="modalTitle" class="modalTitle"></h2>
+
+    <div
+      id="modalDescription"
+      class="modalDescription">
+    </div>
+
+    <div id="timer" class="timer">00:00</div>
+
+    <div class="modalActions">
+
+      <button
+        class="secondary"
+        type="button"
+        onclick="previousExercise()">
+        Précédent
+      </button>
+
+      <button
+        id="timerButton"
+        class="primary"
+        type="button"
+        onclick="toggleTimer()">
+        Démarrer
+      </button>
+
+      <button
+        class="secondary"
+        type="button"
+        onclick="nextExercise()">
+        Suivant
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- Navigation permanente -->
+<div class="bottom">
+
+  <div class="bottomIn">
+
+    <button
+      class="navBtn"
+      type="button"
+      onclick="goHome()">
+      Accueil
+    </button>
+
+    <button
+      class="navBtn active"
+      type="button"
+      onclick="location.href='gestion.html'">
+      Exercices
+    </button>
+
+    <button
+      class="navBtn"
+      type="button"
+      onclick="location.href='figures.html'">
+      Figures
+    </button>
+
+    <button
+      class="navBtn"
+      type="button"
+      onclick="location.href='pole-playlists/playlists.html'">
+      Playlists
+    </button>
+
+  </div>
+
+</div>
+
+
+<script src="data/programs.js"></script>
+
+<script>
+let activeProgram = "renfo";
+let exercises = [];
+let listVisible = false;
+
+let sessionIndex = 0;
+let sessionExercises = [];
+
+let timer = null;
+let remaining = 0;
+let total = 0;
+
+
+function getProgram(){
+  return programs.find(
+    p => p.id === activeProgram
+  );
+}
+
+
+function getExercises(){
+  const program = getProgram();
+
+  if (!program) return [];
+
+  return program.sections.flatMap(
+    section =>
+      section[1].map(
+        exercise => ({
+          name: exercise[0],
+          duration: exercise[1],
+          kind: exercise[2],
+          instructions: exercise[3] || "",
+          seconds:
+            Number(exercise[4]) ||
+            parseDuration(exercise[1]),
+          section: section[0]
+        })
+      )
+  );
+}
+
+
+function parseDuration(value){
+
+  const text =
+    String(value || "")
+      .toLowerCase()
+      .trim();
+
+  const min =
+    text.match(
+      /(\d+(?:[.,]\d+)?)\s*(?:min|minute|minutes)/
+    );
+
+  if(min){
+    return Math.round(
+      parseFloat(
+        min[1].replace(",", ".")
+      ) * 60
+    );
+  }
+
+  const sec =
+    text.match(
+      /(\d+)\s*(?:s|sec|seconde|secondes)/
+    );
+
+  if(sec){
+    return Number(sec[1]);
+  }
+
+  const clock =
+    text.match(
+      /^(\d+):(\d{1,2})$/
+    );
+
+  if(clock){
+    return (
+      Number(clock[1]) * 60 +
+      Number(clock[2])
+    );
+  }
+
+  return 60;
+}
+
+
+function doneKey(){
+  return "pole2_" + activeProgram;
+}
+
+
+function getDone(){
+
+  try{
+    return JSON.parse(
+      localStorage.getItem(doneKey())
+    ) || [];
+  }catch{
+    return [];
+  }
+
+}
+
+
+function saveDone(value){
+
+  localStorage.setItem(
+    doneKey(),
+    JSON.stringify(value)
+  );
+
+}
+
+
+function imageFor(index){
+
+  return (
+    "assets/exercises/" +
+    String(index + 1).padStart(2,"0") +
+    ".jpg"
+  );
+
+}
+
+
+function escapeHTML(value){
+
+  return String(value || "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+
+}
+
+
+function loadProgram(){
+
+  const params =
+    new URLSearchParams(
+      location.search
+    );
+
+  const requested =
+    params.get("program");
+
+  if(
+    requested === "renfo" ||
+    requested === "jambes" ||
+    requested === "bras"
+  ){
+    activeProgram = requested;
+  }else{
+    activeProgram = "renfo";
+  }
+
+  exercises =
+    getExercises();
+
+  renderProgram();
+
+}
+
+
+function renderProgram(){
+
+  const program =
+    getProgram();
+
+  const done =
+    getDone();
+
+  if(!program) return;
+
+  const minutes =
+    activeProgram === "renfo"
+      ? 45
+      : 20;
+
+  const title =
+    program.name
+      .split(" (")[0];
+
+  document.getElementById(
+    "programTitle"
+  ).textContent = title;
+
+  document.getElementById(
+    "programSub"
+  ).textContent =
+    activeProgram === "renfo"
+      ? "Force, grip et gainage"
+      : activeProgram === "jambes"
+        ? "Objectif jambes"
+        : "Objectif bras et épaules";
+
+  document.getElementById(
+    "heroTitle"
+  ).textContent =
+    activeProgram === "renfo"
+      ? "Plus forte pour la pole."
+      : activeProgram === "jambes"
+        ? "Des jambes plus souples, plus de liberté."
+        : "Des épaules plus libres pour la ballerina.";
+
+  document.getElementById(
+    "heroMeta"
+  ).textContent =
+    minutes + " min · à ton rythme";
+
+  document.getElementById(
+    "progressLabel"
+  ).textContent =
+    done.length +
+    " / " +
+    exercises.length +
+    " exercices";
+
+  const percent =
+    exercises.length
+      ? Math.round(
+          done.length /
+          exercises.length *
+          100
+        )
+      : 0;
+
+  document.getElementById(
+    "progressPct"
+  ).textContent =
+    percent + "%";
+
+  document.getElementById(
+    "progressFill"
+  ).style.width =
+    percent + "%";
+
+  document.getElementById(
+    "startButton"
+  ).textContent =
+    "Démarrer la séance · " +
+    minutes +
+    " min";
+
+  document.getElementById(
+    "toggleButton"
+  ).textContent =
+    listVisible
+      ? "Masquer les exercices"
+      : "Afficher les exercices";
+
+  renderExerciseList();
+
+}
+
+
+function renderExerciseList(){
+
+  const list =
+    document.getElementById(
+      "exerciseList"
+    );
+
+  list.classList.toggle(
+    "hidden",
+    !listVisible
+  );
+
+  if(!listVisible){
+    return;
+  }
+
+  if(!exercises.length){
+
+    list.innerHTML =
+      '<div class="empty">Aucun exercice.</div>';
+
+    return;
+  }
+
+  let html = "";
+
+  getProgram().sections.forEach(
+    section => {
+
+      html +=
+        '<div class="section">' +
+        '<div class="sectionTitle">' +
+        escapeHTML(section[0]) +
+        '</div>';
+
+      section[1].forEach(
+        raw => {
+
+          const index =
+            exercises.findIndex(
+              e =>
+                e.name === raw[0]
+            );
+
+          const exercise =
+            exercises[index];
+
+          const done =
+            getDone().includes(index);
+
+          html += `
+
+            <div
+              class="exercise"
+              onclick="openExercise(${index})">
+
+              <div class="thumb">
+
+                <img
+                  src="${imageFor(index)}"
+                  alt=""
+                  onerror="this.style.display='none'">
+
+              </div>
+
+              <div>
+
+                <div class="name">
+                  ${escapeHTML(exercise.name)}
+                </div>
+
+                <div class="meta">
+                  ${escapeHTML(exercise.duration)}
+                </div>
+
+              </div>
+
+              <input
+                class="check"
+                type="checkbox"
+                ${done ? "checked" : ""}
+                onclick="event.stopPropagation()"
+                onchange="toggleDone(${index}, this.checked)">
+
+            </div>
+          `;
+        }
+      );
+
+      html += "</div>";
+    }
+  );
+
+  list.innerHTML = html;
+
+}
+
+
+function toggleExercises(){
+
+  listVisible =
+    !listVisible;
+
+  renderProgram();
+
+}
+
+
+function toggleDone(index, checked){
+
+  let done =
+    getDone();
+
+  if(
+    checked &&
+    !done.includes(index)
+  ){
+    done.push(index);
+  }
+
+  if(!checked){
+    done =
+      done.filter(
+        x => x !== index
+      );
+  }
+
+  saveDone(done);
+
+  renderProgram();
+
+}
+
+
+function startSession(){
+
+  sessionExercises =
+    exercises.map(
+      (_, index) => index
+    );
+
+  sessionIndex = 0;
+
+  openSessionExercise();
+
+}
+
+
+function openExercise(index){
+
+  sessionExercises =
+    exercises.map(
+      (_, i) => i
+    );
+
+  sessionIndex =
+    sessionExercises.indexOf(index);
+
+  openSessionExercise();
+
+}
+
+
+function openSessionExercise(){
+
+  if(
+    sessionIndex < 0 ||
+    sessionIndex >= sessionExercises.length
+  ){
+    finishSession();
+    return;
+  }
+
+  const index =
+    sessionExercises[sessionIndex];
+
+  const exercise =
+    exercises[index];
+
+  clearTimer();
+
+  document.getElementById(
+    "modalSection"
+  ).textContent =
+    exercise.section;
+
+  document.getElementById(
+    "modalTitle"
+  ).textContent =
+    exercise.name;
+
+  document.getElementById(
+    "modalDescription"
+  ).textContent =
+    exercise.instructions;
+
+  document.getElementById(
+    "sessionCount"
+  ).textContent =
+    (sessionIndex + 1) +
+    " / " +
+    sessionExercises.length;
+
+  const visual =
+    document.getElementById(
+      "exerciseVisual"
+    );
+
+  visual.innerHTML = `
+    <img
+      src="${imageFor(index)}"
+      alt=""
+      onerror="this.style.display='none'">
+  `;
+
+  total =
+    Number(exercise.seconds) ||
+    60;
+
+  remaining =
+    total;
+
+  updateTimer();
+
+  document.getElementById(
+    "timerButton"
+  ).textContent =
+    "Démarrer";
+
+  document.getElementById(
+    "modal"
+  ).classList.add("show");
+
+}
+
+
+function closeModal(){
+
+  clearTimer();
+
+  document.getElementById(
+    "modal"
+  ).classList.remove("show");
+
+}
+
+
+function toggleTimer(){
+
+  if(timer){
+
+    clearTimer();
+
+    return;
+  }
+
+  timer =
+    setInterval(
+      () => {
+
+        remaining--;
+
+        updateTimer();
+
+        if(
+          remaining <= 0
+        ){
+
+          clearTimer();
+
+          markCurrentDone();
+
+          setTimeout(
+            nextExercise,
+            350
+          );
+        }
+
+      },
+      1000
+    );
+
+  document.getElementById(
+    "timerButton"
+  ).textContent =
+    "Pause";
+
+}
+
+
+function clearTimer(){
+
+  if(timer){
+
+    clearInterval(timer);
+    timer = null;
+  }
+
+  const button =
+    document.getElementById(
+      "timerButton"
+    );
+
+  if(button){
+    button.textContent =
+      "Démarrer";
+  }
+
+}
+
+
+function updateTimer(){
+
+  document.getElementById(
+    "timer"
+  ).textContent =
+    formatSeconds(
+      Math.max(0, remaining)
+    );
+
+}
+
+
+function formatSeconds(seconds){
+
+  seconds =
+    Math.max(
+      0,
+      Number(seconds) || 0
+    );
+
+  return (
+    String(
+      Math.floor(seconds / 60)
+    ).padStart(2,"0") +
+    ":" +
+    String(
+      seconds % 60
+    ).padStart(2,"0")
+  );
+
+}
+
+
+function markCurrentDone(){
+
+  const index =
+    sessionExercises[sessionIndex];
+
+  let done =
+    getDone();
+
+  if(!done.includes(index)){
+    done.push(index);
+  }
+
+  saveDone(done);
+
+}
+
+
+function previousExercise(){
+
+  if(
+    sessionIndex <= 0
+  ){
+    return;
+  }
+
+  sessionIndex--;
+
+  openSessionExercise();
+
+}
+
+
+function nextExercise(){
+
+  markCurrentDone();
+
+  if(
+    sessionIndex <
+    sessionExercises.length - 1
+  ){
+
+    sessionIndex++;
+
+    openSessionExercise();
+
+  }else{
+
+    finishSession();
+
+  }
+
+}
+
+
+function finishSession(){
+
+  clearTimer();
+
+  const modal =
+    document.getElementById(
+      "modal"
+    );
+
+  document.getElementById(
+    "modalSection"
+  ).textContent =
+    "Séance terminée";
+
+  document.getElementById(
+    "modalTitle"
+  ).textContent =
+    "Bravo";
+
+  document.getElementById(
+    "modalDescription"
+  ).textContent =
+    "Tous les exercices de cette séance ont été parcourus.";
+
+  document.getElementById(
+    "timer"
+  ).textContent =
+    "";
+
+  document.getElementById(
+    "sessionCount"
+  ).textContent =
+    "Terminé";
+
+  document.getElementById(
+    "exerciseVisual"
+  ).innerHTML =
+    '<div class="empty">Séance terminée</div>';
+
+  document.getElementById(
+    "timerButton"
+  ).textContent =
+    "Fermer";
+
+  document.getElementById(
+    "timerButton"
+  ).onclick =
+    closeModal;
+
+  modal.classList.add("show");
+
+  renderProgram();
+
+}
+
+
+function goHome(){
+
+  location.href =
+    "index.html";
+
+}
+
+
+loadProgram();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestion — Programme Pole</title>
+
+  <link rel="stylesheet" href="css/style.css">
+
+  <style>
+    .manage-page {
+      max-width: 900px;
+      margin: auto;
+      padding: 24px 18px 80px;
+    }
+
+    .manage-header {
+      margin-bottom: 25px;
+    }
+
+    .manage-header h1 {
+      margin-bottom: 6px;
+    }
+
+    .manage-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .manage-tabs button {
+      flex: 1;
+    }
+
+    .manage-section {
+      display: none;
+    }
+
+    .manage-section.active {
+      display: block;
+    }
+
+    .manage-card {
+      padding: 20px;
+      margin-bottom: 18px;
+      border-radius: 20px;
+      border: 1px solid rgba(210, 65, 110, .3);
+      background: rgba(20, 12, 17, .9);
+    }
+
+    .manage-card h2 {
+      margin-top: 0;
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 7px;
+      font-weight: 600;
+    }
+
+    .field input,
+    .field textarea,
+    .field select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.15);
+      background: #100b0e;
+      color: #fff;
+      font: inherit;
+    }
+
+    .field textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .photo-preview {
+      width: 180px;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 16px;
+      border: 1px dashed rgba(255,255,255,.25);
+      display: block;
+      margin-top: 10px;
+      background: #0d090b;
+    }
+
+    .item-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .manage-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.035);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    .manage-item img {
+      width: 64px;
+      height: 64px;
+      object-fit: cover;
+      border-radius: 10px;
+      background: #0d090b;
+    }
+
+    .manage-item-info {
+      flex: 1;
+    }
+
+    .manage-item-info strong {
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .manage-item-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .small-btn {
+      padding: 8px 11px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,.15);
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    .danger {
+      border-color: rgba(220,60,90,.5);
+      color: #ff9aad;
+    }
+
+    .star {
+      color: #f0c56a;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .empty {
+      opacity: .55;
+      padding: 20px 0;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="manage-page">
+
+  <div class="manage-header">
+    <button class="small-btn" onclick="location.href='index.html'">
+      ← Retour à l'application
+    </button>
+
+    <h1>Gestion</h1>
+    <p>Ajoute tes exercices et construis ta galerie de figures de pole.</p>
+  </div>
+
+
+  <div class="manage-tabs">
+    <button id="tabExercises" onclick="showTab('exercises')">
+      🏋️ Exercices
+    </button>
+
+    <button id="tabFigures" onclick="showTab('figures')">
+      ✦ Figures de pole
+    </button>
+  </div>
+
+
+  <!-- ========================= -->
+  <!-- EXERCICES -->
+  <!-- ========================= -->
+
+  <section id="exercisesSection" class="manage-section active">
+
+    <div class="manage-card">
+
+      <h2>Ajouter un exercice</h2>
+
+      <div class="field">
+        <label>Nom de l'exercice</label>
+        <input id="exerciseName" placeholder="Ex. Traction australienne">
+      </div>
+
+      <div class="field">
+        <label>Description</label>
+        <textarea id="exerciseDescription"
+          placeholder="Courte description de l'exercice"></textarea>
+      </div>
+
+      <div class="field">
+        <label>Muscles visés</label>
+        <input id="exerciseMuscles"
+          placeholder="Ex. Dos · biceps · épaules">
+      </div>
+
+      <div class="field">
+        <label>Durée (secondes)</label>
+        <input id="exerciseDuration"
+          type="number"
+          value="60"
+          min="1">
+      </div>
+
+      <div class="field">
+        <label>Programme</label>
+        <select id="exerciseProgram">
+          <option value="renfo">Renfo</option>
+          <option value="legs">Souplesse jambes</option>
+          <option value="arms">Souplesse bras</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Photo</label>
+        <input id="exercisePhoto"
+          type="file"
+          accept="image/jpeg,image/png,image/webp">
+
+        <img id="exercisePreview"
+             class="photo-preview"
+             style="display:none">
+      </div>
+
+      <button onclick="addExercise()">
+        + Ajouter l'exercice
+      </button>
+
+    </div>
+
+
+    <div class="manage-card">
+
+      <h2>Mes exercices ajoutés</h2>
+
+      <div id="customExercisesList" class="item-list"></div>
+
+    </div>
+
+
+    <div class="manage-card">
+
+      <h2>Exercices du programme</h2>
+
+      <p>
+        Tu peux masquer un exercice sans le supprimer définitivement.
+      </p>
+
+      <div id="defaultExercisesList" class="item-list"></div>
+
+    </div>
+
+  </section>
+
+
+  <!-- ========================= -->
+  <!-- FIGURES DE POLE -->
+  <!-- ========================= -->
+
+  <section id="figuresSection" class="manage-section">
+
+    <div class="manage-card">
+
+      <h2>Ajouter une figure</h2>
+
+      <div class="field">
+        <label>Nom de la figure</label>
+        <input id="figureName"
+          placeholder="Ex. Gemini">
+      </div>
+
+      <div class="field">
+        <label>Niveau</label>
+
+        <select id="figureLevel">
+          <option value="Débutant">Débutant</option>
+          <option value="Intermédiaire">Intermédiaire</option>
+          <option value="Avancé">Avancé</option>
+          <option value="Expert">Expert</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Photo</label>
+
+        <input id="figurePhoto"
+          type="file"
+          accept="image/jpeg,image/png,image/webp">
+
+        <img id="figurePreview"
+             class="photo-preview"
+             style="display:none">
+      </div>
+
+      <button onclick="addFigure()">
+        + Ajouter la figure
+      </button>
+
+    </div>
+
+
+    <div class="manage-card">
+
+      <h2>Ma galerie de figures</h2>
+
+      <div id="figuresList" class="item-list"></div>
+
+    </div>
+
+  </section>
+
+</div>
+
+
+<script src="js/gestion.js"></script>
+<script src="js/navigation.js"></script>
+</body>
+</html>
