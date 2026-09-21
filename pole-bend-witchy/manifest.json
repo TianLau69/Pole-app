@@ -1,0 +1,22 @@
+{
+  "name": "Programme Pole — Renfo & Souplesse",
+  "short_name": "Pole",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#090809",
+  "theme_color": "#090809",
+  "icons": [
+    {
+      "src": "assets/accueil.jpg",
+      "sizes": "1254x1254",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/accueil.jpg",
+      "sizes": "1254x1254",
+      "type": "image/jpeg",
+      "purpose": "maskable"
+    }
+  ]
+}
