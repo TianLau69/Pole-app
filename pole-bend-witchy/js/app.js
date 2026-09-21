@@ -1,4 +1,4 @@
-/* Programme Pole — Witchy Edition
+/* Pole et Moi — Witchy Edition
    Version robuste : fonctionne même si aucune photo n'est encore importée.
 */
 

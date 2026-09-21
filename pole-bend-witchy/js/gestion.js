@@ -319,7 +319,7 @@ function toggleDefaultExercise(id) {
 
 function getDefaultExercises() {
 
-  if (typeof PROGRAMS === "undefined") {
+  if (typeof programs === "undefined") {
     return [];
   }
 
@@ -327,31 +327,31 @@ function getDefaultExercises() {
   const result = [];
 
 
-  Object.entries(PROGRAMS).forEach(
-    ([programId, program]) => {
+  programs.forEach(program => {
 
-      (program.exercises || []).forEach(
-        (exercise, index) => {
+    let localIndex = 0;
 
-          result.push({
+    (program.sections || []).forEach(section => {
 
-            id:
-              exercise.id ||
-              `${programId}_${index}`,
+      (section[1] || []).forEach(exercise => {
 
-            name:
-              exercise.name,
+        result.push({
 
-            program:
-              programId
+          id: `${program.id}_${localIndex}`,
 
-          });
+          name: exercise[0],
 
-        }
-      );
+          program: program.id
 
-    }
-  );
+        });
+
+        localIndex++;
+
+      });
+
+    });
+
+  });
 
 
   return result;
@@ -401,7 +401,7 @@ function renderDefaultExercises() {
             </strong>
 
             <span>
-              ${exercise.program}
+              ${{renfo:"Renfo",jambes:"Souplesse jambes",bras:"Souplesse bras"}[exercise.program] || exercise.program}
             </span>
 
           </div>

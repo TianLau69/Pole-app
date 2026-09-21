@@ -1,5 +1,5 @@
 /* =========================================================
-   PLAYLISTS — Programme Pole
+   PLAYLISTS — Pole et Moi
    ========================================================= */
 
 const PLAYLISTS_KEY = "pole_playlists";
