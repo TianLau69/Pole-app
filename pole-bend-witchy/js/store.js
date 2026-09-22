@@ -6,7 +6,7 @@
 
 const HIDDEN_EXERCISES_KEY = "pole_hidden_exercises";
 const CUSTOM_EXERCISES_KEY = "pole_custom_exercises";
-const IMAGE_OVERRIDES_KEY = "pole_exercise_image_overrides";
+const EXERCISE_OVERRIDES_KEY = "pole_exercise_overrides";
 
 function pad2(n) {
   return String(n).padStart(2, "0");
@@ -40,22 +40,37 @@ function saveCustomExercises(list) {
   saveJSON(CUSTOM_EXERCISES_KEY, list);
 }
 
-/* Photos qui remplacent, depuis l'appli, l'image d'un exercice par défaut
-   (les 38 fournis avec le projet) sans toucher au code / à GitHub. */
-function getImageOverrides() {
-  return getJSON(IMAGE_OVERRIDES_KEY, {});
+/* Modifications, faites depuis l'appli, d'un exercice par défaut (les 38
+   fournis avec le projet) : photo, nom, description, durée — sans toucher
+   au code / à GitHub. Stocké par id, fusionné par-dessus la donnée d'origine. */
+function getOverrides() {
+  return getJSON(EXERCISE_OVERRIDES_KEY, {});
 }
 
-function setImageOverride(id, dataURL) {
-  const overrides = getImageOverrides();
-  overrides[id] = dataURL;
-  saveJSON(IMAGE_OVERRIDES_KEY, overrides);
+function setOverride(id, partial) {
+  const overrides = getOverrides();
+  overrides[id] = { ...(overrides[id] || {}), ...partial };
+  saveJSON(EXERCISE_OVERRIDES_KEY, overrides);
 }
 
-function removeImageOverride(id) {
-  const overrides = getImageOverrides();
+function clearOverride(id) {
+  const overrides = getOverrides();
   delete overrides[id];
-  saveJSON(IMAGE_OVERRIDES_KEY, overrides);
+  saveJSON(EXERCISE_OVERRIDES_KEY, overrides);
+}
+
+/* Journal des séances terminées, utilisé par la page Statistiques. */
+const SESSION_LOG_KEY = "pole_session_log";
+
+function getSessionLog() {
+  return getJSON(SESSION_LOG_KEY, []);
+}
+
+function logSessionCompleted(programId) {
+  const log = getSessionLog();
+  const today = new Date().toISOString().slice(0, 10);
+  log.push({ date: today, program: programId, ts: Date.now() });
+  saveJSON(SESSION_LOG_KEY, log);
 }
 
 /* Nombre d'exercices dans un programme (toutes sections confondues) */
@@ -89,21 +104,22 @@ function getDefaultExerciseList(programId) {
   const program = programs.find(p => p.id === programId);
   if (!program) return [];
   const offset = programOffset(programId);
-  const overrides = getImageOverrides();
+  const overrides = getOverrides();
   const list = [];
   let localIndex = 0;
   program.sections.forEach(section => {
     section[1].forEach(raw => {
       const id = `${programId}_${localIndex}`;
+      const o = overrides[id] || {};
       list.push({
         id,
-        name: raw[0],
-        duration: raw[1],
+        name: o.name || raw[0],
+        duration: o.duration || raw[1],
         kind: raw[2],
-        instructions: raw[3] || "",
-        seconds: Number(raw[4]) || 60,
+        instructions: o.instructions ?? (raw[3] || ""),
+        seconds: Number(o.seconds || raw[4]) || 60,
         section: section[0],
-        image: overrides[id] || `assets/exercises/${pad2(offset + localIndex + 1)}.jpg`,
+        image: o.image || `assets/exercises/${pad2(offset + localIndex + 1)}.jpg`,
         custom: false
       });
       localIndex++;

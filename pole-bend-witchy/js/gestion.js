@@ -21,6 +21,14 @@ function showTab(tab) {
     .getElementById("figuresSection")
     .classList.toggle("active", tab === "figures");
 
+  document
+    .getElementById("tabExercises")
+    .classList.toggle("active", tab === "exercises");
+
+  document
+    .getElementById("tabFigures")
+    .classList.toggle("active", tab === "figures");
+
 }
 
 
@@ -111,7 +119,160 @@ function pickImage(callback) {
 
 }
 
-async function addExercise() {
+/* =========================================
+   EXERCICES — grille unique + fenêtre modale
+   d'ajout / édition (défauts + persos confondus)
+========================================= */
+
+let editingId = null;
+let editingType = null; // "new" | "custom" | "default"
+
+
+function openExerciseForm(item) {
+
+  document.getElementById("exerciseName").value =
+    item ? item.name : "";
+
+  document.getElementById("exerciseDescription").value =
+    item ? (item.instructions || "") : "";
+
+  document.getElementById("exerciseMuscles").value =
+    item && item.muscles ? item.muscles : "";
+
+  document.getElementById("exerciseDuration").value =
+    item ? item.seconds : 60;
+
+  document.getElementById("exercisePhoto").value = "";
+
+  const preview = document.getElementById("exercisePreview");
+
+  if (item && item.image) {
+    preview.src = item.image;
+    preview.style.display = "block";
+  } else {
+    preview.src = "";
+    preview.style.display = "none";
+  }
+
+  const programField = document.getElementById("exerciseProgramField");
+  const programSelect = document.getElementById("exerciseProgram");
+  const musclesField = document.getElementById("exerciseMusclesField");
+  const title = document.getElementById("exerciseModalTitle");
+
+  if (!item) {
+
+    editingId = null;
+    editingType = "new";
+    title.textContent = "Ajouter un exercice";
+    programField.style.display = "";
+    musclesField.style.display = "";
+    programSelect.value = "renfo";
+
+  } else if (item.custom) {
+
+    editingId = item.id;
+    editingType = "custom";
+    title.textContent = "Modifier l'exercice";
+    programField.style.display = "";
+    musclesField.style.display = "";
+    programSelect.value = item.program;
+
+  } else {
+
+    editingId = item.id;
+    editingType = "default";
+    title.textContent = "Modifier l'exercice";
+    programField.style.display = "none";
+    musclesField.style.display = "none";
+
+  }
+
+  renderExerciseModalActions(item);
+
+  document.getElementById("exerciseModal").classList.add("show");
+
+}
+
+
+function openExerciseFormById(id, isCustom) {
+
+  let item = null;
+
+  if (isCustom) {
+
+    const e = getCustomExercises().find(x => x.id === id);
+
+    item = e && {
+      id: e.id,
+      name: e.name,
+      image: e.image,
+      program: e.program,
+      custom: true,
+      instructions: e.description,
+      muscles: e.muscles,
+      seconds: e.duration
+    };
+
+  } else {
+
+    item = getAllDefaultExercises().find(x => x.id === id) || null;
+
+  }
+
+  if (item) openExerciseForm(item);
+
+}
+
+
+function closeExerciseModal() {
+
+  document.getElementById("exerciseModal").classList.remove("show");
+
+}
+
+
+function renderExerciseModalActions(item) {
+
+  const container =
+    document.getElementById("exerciseModalExtraActions");
+
+  if (!item) {
+    container.innerHTML = "";
+    return;
+  }
+
+  if (item.custom) {
+
+    container.innerHTML = `
+      <button class="danger" onclick="handleDeleteFromModal('${item.id}')">
+        Supprimer
+      </button>
+    `;
+
+  } else {
+
+    const hidden = getHiddenIds().includes(item.id);
+    const hasOverride = Boolean(getOverrides()[item.id]);
+
+    container.innerHTML = `
+      <button onclick="handleToggleHideFromModal('${item.id}')">
+        ${hidden ? "Réactiver" : "Masquer"}
+      </button>
+      ${
+        hasOverride
+        ? `<button onclick="handleResetFromModal('${item.id}')">
+            ↺ Réinitialiser
+          </button>`
+        : ""
+      }
+    `;
+
+  }
+
+}
+
+
+async function saveExerciseForm() {
 
   const name =
     document.getElementById("exerciseName").value.trim();
@@ -120,7 +281,6 @@ async function addExercise() {
     alert("Donne un nom à l'exercice.");
     return;
   }
-
 
   const description =
     document.getElementById("exerciseDescription").value.trim();
@@ -137,311 +297,155 @@ async function addExercise() {
   const file =
     document.getElementById("exercisePhoto").files[0];
 
-  const image =
-    await fileToDataURL(file);
+  const newImage =
+    file ? await fileToDataURL(file) : null;
 
 
-  const exercises =
-    getCustomExercises();
+  if (editingType === "new") {
 
-
-  exercises.push({
-
-    id:
-      "custom_" +
-      Date.now(),
-
-    name,
-
-    description,
-
-    muscles,
-
-    duration,
-
-    program,
-
-    image,
-
-    custom: true
-
-  });
-
-
-  saveCustomExercises(exercises);
-
-
-  document.getElementById("exerciseName").value = "";
-
-  document.getElementById("exerciseDescription").value = "";
-
-  document.getElementById("exerciseMuscles").value = "";
-
-  document.getElementById("exercisePhoto").value = "";
-
-  document.getElementById("exercisePreview").style.display = "none";
-
-
-  renderCustomExercises();
-
-  alert("Exercice ajouté ✨");
-
-}
-
-
-/* =========================================
-   SUPPRESSION EXERCICE
-========================================= */
-
-function deleteExercise(id) {
-
-  if (!confirm("Supprimer cet exercice ?")) {
-    return;
-  }
-
-  const exercises =
-    getCustomExercises()
-      .filter(e => e.id !== id);
-
-  saveCustomExercises(exercises);
-
-  renderCustomExercises();
-
-}
-
-
-/* =========================================
-   EXERCICES PERSONNELS
-========================================= */
-
-function changeCustomExercisePhoto(id) {
-
-  pickImage(dataURL => {
     const exercises = getCustomExercises();
-    const exercise = exercises.find(e => e.id === id);
-    if (!exercise) return;
-    exercise.image = dataURL;
+
+    exercises.push({
+      id: "custom_" + Date.now(),
+      name,
+      description,
+      muscles,
+      duration,
+      program,
+      image: newImage || "",
+      custom: true
+    });
+
     saveCustomExercises(exercises);
-    renderCustomExercises();
-  });
+
+  } else if (editingType === "custom") {
+
+    const exercises = getCustomExercises();
+    const exercise = exercises.find(e => e.id === editingId);
+
+    if (exercise) {
+      exercise.name = name;
+      exercise.description = description;
+      exercise.muscles = muscles;
+      exercise.duration = duration;
+      exercise.program = program;
+      if (newImage) exercise.image = newImage;
+      saveCustomExercises(exercises);
+    }
+
+  } else if (editingType === "default") {
+
+    const partial = {
+      name,
+      instructions: description,
+      seconds: duration,
+      duration: secondsToLabel(duration)
+    };
+
+    if (newImage) partial.image = newImage;
+
+    setOverride(editingId, partial);
+
+  }
+
+  closeExerciseModal();
+  renderExercisesGrid();
 
 }
 
 
-function renderCustomExercises() {
+function handleDeleteFromModal(id) {
 
-  const container =
-    document.getElementById("customExercisesList");
+  if (!confirm("Supprimer cet exercice ?")) return;
 
   const exercises =
-    getCustomExercises();
+    getCustomExercises().filter(e => e.id !== id);
 
+  saveCustomExercises(exercises);
 
-  if (!exercises.length) {
-
-    container.innerHTML =
-      `<div class="empty">
-        Aucun exercice personnel pour le moment.
-      </div>`;
-
-    return;
-  }
-
-
-  container.innerHTML =
-    exercises.map(exercise => `
-
-      <div class="manage-item">
-
-        ${
-          exercise.image
-          ? `<img src="${exercise.image}">`
-          : `<img alt="">`
-        }
-
-        <div class="manage-item-info">
-
-          <strong>${escapeHTML(exercise.name)}</strong>
-
-          <span>
-            ${{renfo:"Renfo",jambes:"Souplesse jambes",bras:"Souplesse bras"}[exercise.program] || exercise.program}
-            ${exercise.muscles ? " · " + escapeHTML(exercise.muscles) : ""}
-          </span>
-
-        </div>
-
-        <div class="manage-item-actions">
-
-          <button
-            class="small-btn"
-            onclick="changeCustomExercisePhoto('${exercise.id}')">
-
-            📷 Photo
-
-          </button>
-
-          <button
-            class="small-btn danger"
-            onclick="deleteExercise('${exercise.id}')">
-
-            Supprimer
-
-          </button>
-
-        </div>
-
-      </div>
-
-    `).join("");
+  closeExerciseModal();
+  renderExercisesGrid();
 
 }
 
 
-/* =========================================
-   MASQUER EXERCICES EXISTANTS
-========================================= */
+function handleToggleHideFromModal(id) {
 
-function toggleDefaultExercise(id) {
+  const hidden = getHiddenIds();
+  const index = hidden.indexOf(id);
 
-  const hidden =
-    getHiddenIds();
-
-  const index =
-    hidden.indexOf(id);
-
-
-  if (index >= 0) {
-
-    hidden.splice(index, 1);
-
-  } else {
-
-    hidden.push(id);
-
-  }
-
+  if (index >= 0) hidden.splice(index, 1);
+  else hidden.push(id);
 
   setHiddenIds(hidden);
 
-
-  renderDefaultExercises();
-
-}
-
-
-function changeDefaultExercisePhoto(id) {
-
-  pickImage(dataURL => {
-    setImageOverride(id, dataURL);
-    renderDefaultExercises();
-  });
+  closeExerciseModal();
+  renderExercisesGrid();
 
 }
 
 
-function resetDefaultExercisePhoto(id) {
+function handleResetFromModal(id) {
 
-  removeImageOverride(id);
-  renderDefaultExercises();
+  clearOverride(id);
+
+  closeExerciseModal();
+  renderExercisesGrid();
 
 }
 
 
-function renderDefaultExercises() {
+function renderExercisesGrid() {
 
   const container =
-    document.getElementById("defaultExercisesList");
+    document.getElementById("exercisesGrid");
 
-  const hidden =
-    getHiddenIds();
+  const hidden = getHiddenIds();
 
-  const overrides =
-    getImageOverrides();
-
-  const exercises =
+  const defaults =
     getAllDefaultExercises();
 
+  const customs =
+    getCustomExercises().map(e => ({
+      id: e.id,
+      name: e.name,
+      image: e.image,
+      program: e.program,
+      custom: true
+    }));
 
-  if (!exercises.length) {
+  const all = [...defaults, ...customs];
 
+  if (!all.length) {
     container.innerHTML =
-      `<div class="empty">
-        Les exercices existants seront affichés ici.
-      </div>`;
-
+      `<div class="empty">Aucun exercice pour le moment.</div>`;
     return;
-
   }
 
-
   container.innerHTML =
-    exercises.map(exercise => {
+    all.map(exercise => {
 
       const isHidden =
-        hidden.includes(exercise.id);
-
-      const hasOverride =
-        Boolean(overrides[exercise.id]);
-
+        !exercise.custom && hidden.includes(exercise.id);
 
       return `
-
-        <div class="manage-item">
+        <button
+          type="button"
+          class="exCard ${isHidden ? "isHidden" : ""}"
+          onclick="openExerciseFormById('${exercise.id}', ${exercise.custom ? "true" : "false"})">
 
           <img
-            src="${exercise.image}"
+            src="${exercise.image || ""}"
             alt=""
             onerror="this.style.visibility='hidden'">
 
-          <div class="manage-item-info">
-
-            <strong>
-              ${escapeHTML(exercise.name)}
-            </strong>
-
-            <span>
-              ${{renfo:"Renfo",jambes:"Souplesse jambes",bras:"Souplesse bras"}[exercise.program] || exercise.program}
-              ${hasOverride ? " · photo perso" : " · " + exercise.image.split("/").pop()}
-            </span>
-
+          <div class="exCardName">
+            ${escapeHTML(exercise.name)}
           </div>
 
-          <div class="manage-item-actions">
+          ${isHidden ? `<div class="exCardBadge">Masqué</div>` : ""}
 
-            <button
-              class="small-btn"
-              onclick="changeDefaultExercisePhoto('${exercise.id}')">
-
-              📷 Photo
-
-            </button>
-
-            ${
-              hasOverride
-              ? `<button
-                  class="small-btn"
-                  onclick="resetDefaultExercisePhoto('${exercise.id}')">
-                  ↺ Photo d'origine
-                </button>`
-              : ""
-            }
-
-            <button
-              class="small-btn"
-              onclick="toggleDefaultExercise('${exercise.id}')">
-
-              ${
-                isHidden
-                ? "Réactiver"
-                : "Masquer"
-              }
-
-            </button>
-
-          </div>
-
-        </div>
-
+        </button>
       `;
 
     }).join("");
@@ -765,8 +769,6 @@ function escapeHTML(value) {
    INITIALISATION
 ========================================= */
 
-renderCustomExercises();
-
-renderDefaultExercises();
+renderExercisesGrid();
 
 renderFigures();

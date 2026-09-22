@@ -19,17 +19,26 @@
     }
 
     .manage-header {
-      margin-bottom: 25px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
     }
 
-    .manage-header h1 {
-      margin-bottom: 6px;
+    .manage-header .headTexts h1 {
+      margin: 0 0 4px;
+    }
+
+    .manage-header .headTexts p {
+      margin: 0;
+      color: var(--muted, #ad999f);
+      font-size: 13px;
     }
 
     .manage-tabs {
       display: flex;
       gap: 8px;
-      margin-bottom: 24px;
+      margin-bottom: 22px;
     }
 
     .manage-tabs button {
@@ -42,6 +51,18 @@
 
     .manage-section.active {
       display: block;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: 17px;
     }
 
     .manage-card {
@@ -85,8 +106,8 @@
     }
 
     .photo-preview {
-      width: 180px;
-      height: 180px;
+      width: 140px;
+      height: 140px;
       object-fit: cover;
       border-radius: 16px;
       border: 1px dashed rgba(255,255,255,.25);
@@ -133,18 +154,121 @@
       gap: 6px;
     }
 
-    .small-btn {
-      padding: 8px 11px;
-      border-radius: 10px;
-      border: 1px solid rgba(255,255,255,.15);
-      background: transparent;
-      color: inherit;
+    /* Grille "image + nom" des exercices, cliquable */
+    .exGrid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .exCard {
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #34252b;
+      border-radius: 16px;
+      background: #120d10;
+      overflow: hidden;
+      cursor: pointer;
+      text-align: left;
+      padding: 0;
+    }
+
+    .exCard img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      display: block;
+      background: #0d090b;
+    }
+
+    .exCard .exCardName {
+      padding: 8px 8px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .exCard.isHidden {
+      opacity: .4;
+    }
+
+    .exCard .exCardBadge {
+      font-size: 9px;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      color: #d6a08a;
+      padding: 0 8px;
+    }
+
+    /* Boutons : mêmes codes que sur "Mes playlists" pour un rendu cohérent
+       et lisible (fond sombre, texte clair) partout sur cette page */
+    button {
+      -webkit-appearance: none;
+      appearance: none;
+      font: inherit;
+    }
+
+    .manage-page button:not(.exCard) {
+      border: 1px solid #34252b;
+      background: #120d10;
+      color: #f6eee8;
+      border-radius: 999px;
+      padding: 10px 14px;
       cursor: pointer;
     }
 
+    .manage-page .back {
+      width: 40px;
+      height: 40px;
+      padding: 0 !important;
+      border-radius: 50% !important;
+      font-size: 19px;
+      flex: 0 0 40px;
+    }
+
+    .manage-page .round-add {
+      width: 38px;
+      height: 38px;
+      padding: 0 !important;
+      border-radius: 50% !important;
+      font-size: 20px;
+      line-height: 1;
+      background: #a3133d;
+      border-color: #a3133d;
+      color: #fff;
+    }
+
+    .manage-tabs button.active {
+      background: #a3133d;
+      border-color: #a3133d;
+      color: #fff;
+    }
+
+    .manage-page button.primary,
+    .manage-page button[type="submit"] {
+      width: 100%;
+      background: linear-gradient(90deg,#a91442,#d52f63);
+      border-color: #a91442;
+      color: #fff;
+      font-weight: 800;
+      padding: 12px 14px;
+    }
+
+    .manage-page button.small-btn {
+      padding: 8px 11px;
+      border-radius: 10px;
+      font-size: 12.5px;
+    }
+
+    .manage-page button.round-add,
+    .manage-page button.back {
+      padding: 0;
+    }
+
     .danger {
-      border-color: rgba(220,60,90,.5);
-      color: #ff9aad;
+      border-color: rgba(220,60,90,.5) !important;
+      color: #ff9aad !important;
+      background: transparent !important;
     }
 
     .star {
@@ -158,6 +282,68 @@
       padding: 20px 0;
       text-align: center;
     }
+
+    /* Modal d'ajout / édition d'un exercice */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.74);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 20;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .sheet {
+      width: min(620px, 100%);
+      max-height: 92vh;
+      overflow: auto;
+      background: #0d090c;
+      border: 1px solid #34252b;
+      border-radius: 26px 26px 0 0;
+      padding: 18px;
+    }
+
+    .sheetHead {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .sheetHead h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .close {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid #34252b;
+      background: #151014;
+      font-size: 20px;
+      cursor: pointer;
+      flex: 0 0 36px;
+      padding: 0;
+    }
+
+    .modal-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .modal-actions button {
+      flex: 1;
+      min-width: 120px;
+    }
   </style>
 </head>
 
@@ -166,17 +352,16 @@
 <div class="manage-page">
 
   <div class="manage-header">
-    <button class="small-btn" onclick="location.href='index.html'">
-      ← Retour à l'application
-    </button>
-
-    <h1>Gestion</h1>
-    <p>Ajoute tes exercices et construis ta galerie de figures de pole.</p>
+    <button class="back" onclick="location.href='index.html'">‹</button>
+    <div class="headTexts">
+      <h1>Gestion</h1>
+      <p>Ajoute tes exercices et construis ta galerie de figures de pole.</p>
+    </div>
   </div>
 
 
   <div class="manage-tabs">
-    <button id="tabExercises" onclick="showTab('exercises')">
+    <button id="tabExercises" class="active" onclick="showTab('exercises')">
       🏋️ Exercices
     </button>
 
@@ -192,82 +377,16 @@
 
   <section id="exercisesSection" class="manage-section active">
 
-    <div class="manage-card">
-
-      <h2>Ajouter un exercice</h2>
-
-      <div class="field">
-        <label>Nom de l'exercice</label>
-        <input id="exerciseName" placeholder="Ex. Traction australienne">
-      </div>
-
-      <div class="field">
-        <label>Description</label>
-        <textarea id="exerciseDescription"
-          placeholder="Courte description de l'exercice"></textarea>
-      </div>
-
-      <div class="field">
-        <label>Muscles visés</label>
-        <input id="exerciseMuscles"
-          placeholder="Ex. Dos · biceps · épaules">
-      </div>
-
-      <div class="field">
-        <label>Durée (secondes)</label>
-        <input id="exerciseDuration"
-          type="number"
-          value="60"
-          min="1">
-      </div>
-
-      <div class="field">
-        <label>Programme</label>
-        <select id="exerciseProgram">
-          <option value="renfo">Renfo</option>
-          <option value="jambes">Souplesse jambes</option>
-          <option value="bras">Souplesse bras</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label>Photo</label>
-        <input id="exercisePhoto"
-          type="file"
-          accept="image/jpeg,image/png,image/webp">
-
-        <img id="exercisePreview"
-             class="photo-preview"
-             style="display:none">
-      </div>
-
-      <button onclick="addExercise()">
-        + Ajouter l'exercice
-      </button>
-
+    <div class="section-head">
+      <h2>Tous mes exercices</h2>
+      <button class="round-add" onclick="openExerciseForm(null)">+</button>
     </div>
 
+    <p style="color:#ad999f;font-size:12.5px;margin:-6px 0 14px">
+      Touche un exercice pour le modifier, changer sa photo, le masquer ou le supprimer.
+    </p>
 
-    <div class="manage-card">
-
-      <h2>Mes exercices ajoutés</h2>
-
-      <div id="customExercisesList" class="item-list"></div>
-
-    </div>
-
-
-    <div class="manage-card">
-
-      <h2>Exercices du programme</h2>
-
-      <p>
-        Tu peux masquer un exercice sans le supprimer définitivement.
-      </p>
-
-      <div id="defaultExercisesList" class="item-list"></div>
-
-    </div>
+    <div id="exercisesGrid" class="exGrid"></div>
 
   </section>
 
@@ -311,7 +430,7 @@
              style="display:none">
       </div>
 
-      <button onclick="addFigure()">
+      <button class="primary" onclick="addFigure()">
         + Ajouter la figure
       </button>
 
@@ -328,6 +447,75 @@
 
   </section>
 
+</div>
+
+
+<!-- ========================= -->
+<!-- MODAL EXERCICE (ajout / édition) -->
+<!-- ========================= -->
+
+<div id="exerciseModal" class="modal">
+  <div class="sheet">
+
+    <div class="sheetHead">
+      <h2 id="exerciseModalTitle">Ajouter un exercice</h2>
+      <button class="close" onclick="closeExerciseModal()">×</button>
+    </div>
+
+    <div class="field">
+      <label>Nom de l'exercice</label>
+      <input id="exerciseName" placeholder="Ex. Traction australienne">
+    </div>
+
+    <div class="field">
+      <label>Description</label>
+      <textarea id="exerciseDescription"
+        placeholder="Courte description de l'exercice"></textarea>
+    </div>
+
+    <div class="field" id="exerciseMusclesField">
+      <label>Muscles visés</label>
+      <input id="exerciseMuscles"
+        placeholder="Ex. Dos · biceps · épaules">
+    </div>
+
+    <div class="field">
+      <label>Durée (secondes)</label>
+      <input id="exerciseDuration"
+        type="number"
+        value="60"
+        min="1">
+    </div>
+
+    <div class="field" id="exerciseProgramField">
+      <label>Programme</label>
+      <select id="exerciseProgram">
+        <option value="renfo">Renfo</option>
+        <option value="jambes">Souplesse jambes</option>
+        <option value="bras">Souplesse bras</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Photo</label>
+      <input id="exercisePhoto"
+        type="file"
+        accept="image/jpeg,image/png,image/webp">
+
+      <img id="exercisePreview"
+           class="photo-preview"
+           style="display:none">
+    </div>
+
+    <div class="modal-actions">
+      <button class="primary" onclick="saveExerciseForm()">
+        Enregistrer
+      </button>
+    </div>
+
+    <div class="modal-actions" id="exerciseModalExtraActions"></div>
+
+  </div>
 </div>
 
 

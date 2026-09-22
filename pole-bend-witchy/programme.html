@@ -447,7 +447,7 @@ h1{margin:0;font-size:28px}
     </button>
 
     <button
-      class="navBtn active"
+      class="navBtn"
       type="button"
       onclick="location.href='gestion.html'">
       Exercices
@@ -465,6 +465,13 @@ h1{margin:0;font-size:28px}
       type="button"
       onclick="location.href='pole-playlists/playlists.html'">
       Playlists
+    </button>
+
+    <button
+      class="navBtn"
+      type="button"
+      onclick="location.href='stats.html'">
+      Stats
     </button>
 
   </div>
@@ -1106,6 +1113,8 @@ function nextExercise(){
 function finishSession(){
 
   clearTimer();
+
+  logSessionCompleted(activeProgram);
 
   const modal =
     document.getElementById(

@@ -17,6 +17,10 @@
     active = "playlists";
   }
 
+  if (file === "stats.html") {
+    active = "stats";
+  }
+
   const root = inPlaylists ? "../" : "";
 
   const style = document.createElement("style");
@@ -42,7 +46,7 @@
       max-width: 620px;
       margin: 0 auto;
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       gap: 4px;
       padding: 8px 10px 10px;
     }
@@ -113,6 +117,13 @@
         type="button"
         onclick="location.href='${root}pole-playlists/playlists.html'">
         Playlists
+      </button>
+
+      <button
+        class="${active === "stats" ? "active" : ""}"
+        type="button"
+        onclick="location.href='${root}stats.html'">
+        Stats
       </button>
 
     </div>

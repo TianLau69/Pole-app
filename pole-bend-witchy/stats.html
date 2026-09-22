@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#090809">
+
+<link rel="icon" href="assets/accueil.jpg">
+<link rel="apple-touch-icon" href="assets/accueil.jpg">
+<link rel="manifest" href="manifest.json">
+
+<title>Statistiques — Pole et Moi</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+<style>
+  .statsPage{max-width:620px;margin:auto;padding:18px 18px 100px}
+  .empty{opacity:.55;padding:20px 0;text-align:center;font-size:13px}
+</style>
+</head>
+
+<body>
+
+<div class="statsPage">
+
+  <div class="pageHead">
+    <button class="back" onclick="location.href='index.html'">‹</button>
+    <div>
+      <h1 class="pageTitle">Statistiques</h1>
+      <div class="pageSub">Ta régularité, séance après séance</div>
+    </div>
+  </div>
+
+
+  <div class="streakHero">
+    <div class="streakNumber" id="streakNumber">0</div>
+    <div class="streakLabel" id="streakLabel">jour d'affilée</div>
+    <div class="streakSub" id="streakSub"></div>
+  </div>
+
+
+  <div class="statGrid">
+    <div class="statCard">
+      <div class="statValue" id="statTotal">0</div>
+      <div class="statLabel">Séances totales</div>
+    </div>
+    <div class="statCard">
+      <div class="statValue" id="statMinutes">0</div>
+      <div class="statLabel">Minutes cumulées</div>
+    </div>
+    <div class="statCard">
+      <div class="statValue" id="statWeek">0</div>
+      <div class="statLabel">Cette semaine</div>
+    </div>
+  </div>
+
+
+  <div class="trackPanel">
+    <div class="trackPanelHead">
+      <div class="trackPanelTitle calendarTitle" id="calendarTitle">Ce mois-ci</div>
+      <div class="monthBtns">
+        <button class="monthBtn" onclick="changeMonth(-1)">‹</button>
+        <button class="monthBtn" onclick="changeMonth(1)">›</button>
+      </div>
+    </div>
+
+    <div class="calendar" id="calendar"></div>
+
+    <div class="calendarLegend">
+      Un carré rempli = au moins une séance ce jour-là.
+    </div>
+  </div>
+
+
+  <div class="trackPanel">
+    <div class="trackPanelHead">
+      <div class="trackPanelTitle">Jalons</div>
+    </div>
+    <div class="milestones" id="milestones"></div>
+  </div>
+
+
+  <div class="trackPanel">
+    <div class="trackPanelHead">
+      <div class="trackPanelTitle">Dernières séances</div>
+    </div>
+    <div class="sessionLog" id="sessionLog"></div>
+  </div>
+
+</div>
+
+<script src="data/programs.js"></script>
+<script src="js/store.js"></script>
+<script>
+
+const PROGRAM_LABELS = { renfo: "Renfo", jambes: "Souplesse jambes", bras: "Souplesse bras" };
+const PROGRAM_MINUTES = { renfo: 45, jambes: 20, bras: 20 };
+const MILESTONE_STEPS = [5, 10, 25, 50, 100, 200];
+
+let viewMonth = new Date();
+viewMonth.setDate(1);
+
+
+function todayKey() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+
+function dateKey(d) {
+  return d.toISOString().slice(0, 10);
+}
+
+
+function computeStreak(log) {
+
+  const days = new Set(log.map(e => e.date));
+  let streak = 0;
+  let cursor = new Date();
+
+  // si rien fait aujourd'hui, on regarde quand même hier pour ne pas
+  // casser une série en cours avant la séance du jour
+  if (!days.has(dateKey(cursor)) ) {
+    cursor.setDate(cursor.getDate() - 1);
+  }
+
+  while (days.has(dateKey(cursor))) {
+    streak++;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+
+  return streak;
+
+}
+
+
+function renderStats() {
+
+  const log = getSessionLog();
+
+  const streak = computeStreak(log);
+  document.getElementById("streakNumber").textContent = streak;
+  document.getElementById("streakLabel").textContent =
+    streak > 1 ? "jours d'affilée" : "jour d'affilée";
+  document.getElementById("streakSub").textContent =
+    log.length
+    ? "Continue comme ça ✨"
+    : "Termine une séance pour démarrer ta série.";
+
+  document.getElementById("statTotal").textContent = log.length;
+
+  const totalMinutes = log.reduce(
+    (sum, e) => sum + (PROGRAM_MINUTES[e.program] || 0), 0
+  );
+  document.getElementById("statMinutes").textContent = totalMinutes;
+
+  const weekAgo = new Date();
+  weekAgo.setDate(weekAgo.getDate() - 6);
+  const weekCount = log.filter(e => new Date(e.date) >= weekAgo).length;
+  document.getElementById("statWeek").textContent = weekCount;
+
+  renderCalendar(log);
+  renderMilestones(log.length);
+  renderLog(log);
+
+}
+
+
+function renderCalendar(log) {
+
+  const days = new Set(log.map(e => e.date));
+
+  const year = viewMonth.getFullYear();
+  const month = viewMonth.getMonth();
+
+  document.getElementById("calendarTitle").textContent =
+    viewMonth.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+
+  const firstDay = new Date(year, month, 1);
+  const startOffset = (firstDay.getDay() + 6) % 7; // lundi = 0
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  const dow = ["L", "M", "M", "J", "V", "S", "D"];
+  let html = dow.map(d => `<div class="calDow">${d}</div>`).join("");
+
+  for (let i = 0; i < startOffset; i++) {
+    html += `<div class="calEmpty"></div>`;
+  }
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const d = new Date(year, month, day);
+    const key = dateKey(d);
+    const isActive = days.has(key);
+    const isToday = key === todayKey();
+
+    html += `
+      <button
+        type="button"
+        class="calDay ${isActive ? "active" : ""} ${isToday ? "today" : ""}">
+        ${day}
+      </button>
+    `;
+  }
+
+  document.getElementById("calendar").innerHTML = html;
+
+}
+
+
+function changeMonth(delta) {
+  viewMonth.setMonth(viewMonth.getMonth() + delta);
+  renderCalendar(getSessionLog());
+}
+
+
+function renderMilestones(total) {
+
+  document.getElementById("milestones").innerHTML =
+    MILESTONE_STEPS.map(step => `
+      <div class="milestone ${total >= step ? "done" : ""}">
+        <div class="milestoneNum">${step}</div>
+        <div class="milestoneText">séances</div>
+      </div>
+    `).join("");
+
+}
+
+
+function renderLog(log) {
+
+  const container = document.getElementById("sessionLog");
+
+  if (!log.length) {
+    container.innerHTML =
+      `<div class="empty">Aucune séance enregistrée pour le moment.</div>`;
+    return;
+  }
+
+  const recent = [...log].reverse().slice(0, 10);
+
+  container.innerHTML = recent.map(entry => {
+    const d = new Date(entry.date);
+    const label = d.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+    return `
+      <div class="logRow">
+        <span class="logDate">${label}</span>
+        <span class="logProg">${PROGRAM_LABELS[entry.program] || entry.program}</span>
+      </div>
+    `;
+  }).join("");
+
+}
+
+
+renderStats();
+
+</script>
+
+<script src="js/navigation.js"></script>
+
+</body>
+</html>
