@@ -208,7 +208,7 @@
       font: inherit;
     }
 
-    .manage-page button:not(.exCard) {
+    body button:not(.exCard) {
       border: 1px solid #34252b;
       background: #120d10;
       color: #f6eee8;
@@ -217,7 +217,7 @@
       cursor: pointer;
     }
 
-    .manage-page .back {
+    body button.back {
       width: 40px;
       height: 40px;
       padding: 0 !important;
@@ -226,16 +226,16 @@
       flex: 0 0 40px;
     }
 
-    .manage-page .round-add {
+    body button.round-add {
       width: 38px;
       height: 38px;
       padding: 0 !important;
       border-radius: 50% !important;
       font-size: 20px;
       line-height: 1;
-      background: #a3133d;
-      border-color: #a3133d;
-      color: #fff;
+      background: #a3133d !important;
+      border-color: #a3133d !important;
+      color: #fff !important;
     }
 
     .manage-tabs button.active {
@@ -244,25 +244,20 @@
       color: #fff;
     }
 
-    .manage-page button.primary,
-    .manage-page button[type="submit"] {
+    body button.primary,
+    body button[type="submit"] {
       width: 100%;
-      background: linear-gradient(90deg,#a91442,#d52f63);
-      border-color: #a91442;
-      color: #fff;
+      background: linear-gradient(90deg,#a91442,#d52f63) !important;
+      border-color: #a91442 !important;
+      color: #fff !important;
       font-weight: 800;
       padding: 12px 14px;
     }
 
-    .manage-page button.small-btn {
+    body button.small-btn {
       padding: 8px 11px;
       border-radius: 10px;
       font-size: 12.5px;
-    }
-
-    .manage-page button.round-add,
-    .manage-page button.back {
-      padding: 0;
     }
 
     .danger {
@@ -477,14 +472,6 @@
       <label>Muscles visés</label>
       <input id="exerciseMuscles"
         placeholder="Ex. Dos · biceps · épaules">
-    </div>
-
-    <div class="field">
-      <label>Durée (secondes)</label>
-      <input id="exerciseDuration"
-        type="number"
-        value="60"
-        min="1">
     </div>
 
     <div class="field" id="exerciseProgramField">

@@ -403,7 +403,30 @@ h1{margin:0;font-size:28px}
 
     <div id="timer" class="timer">00:00</div>
 
-    <div class="modalActions">
+    <div id="durationPrompt" class="durationPrompt hidden">
+
+      <p style="margin:0 0 10px;color:#b9aaa9;font-size:13px;text-align:center">
+        Combien de temps pour cet exercice ?
+      </p>
+
+      <input
+        id="durationInput"
+        type="number"
+        min="1"
+        placeholder="Durée en secondes"
+        style="width:100%;box-sizing:border-box;padding:12px;border-radius:12px;border:1px solid #34252b;background:#100b0e;color:#fff;font:inherit;text-align:center;margin-bottom:10px">
+
+      <button
+        class="primary"
+        type="button"
+        style="width:100%"
+        onclick="confirmDuration()">
+        C'est parti
+      </button>
+
+    </div>
+
+    <div id="modalActions" class="modalActions">
 
       <button
         class="secondary"
@@ -984,8 +1007,7 @@ function openSessionExercise(){
   `;
 
   total =
-    Number(exercise.seconds) ||
-    60;
+    Number(exercise.seconds) || 0;
 
   remaining =
     total;
@@ -995,6 +1017,84 @@ function openSessionExercise(){
   document.getElementById(
     "modal"
   ).classList.add("show");
+
+  if(total > 0){
+
+    document.getElementById(
+      "durationPrompt"
+    ).classList.add("hidden");
+
+    document.getElementById(
+      "modalActions"
+    ).classList.remove("hidden");
+
+    document.getElementById(
+      "timer"
+    ).classList.remove("hidden");
+
+    startTimerAuto();
+
+  } else {
+
+    document.getElementById(
+      "durationPrompt"
+    ).classList.remove("hidden");
+
+    document.getElementById(
+      "modalActions"
+    ).classList.add("hidden");
+
+    document.getElementById(
+      "timer"
+    ).classList.add("hidden");
+
+    const input =
+      document.getElementById(
+        "durationInput"
+      );
+
+    input.value = "";
+
+    setTimeout(
+      () => input.focus(),
+      50
+    );
+
+  }
+
+}
+
+
+function confirmDuration(){
+
+  const value =
+    Number(
+      document.getElementById(
+        "durationInput"
+      ).value
+    );
+
+  if(!value || value <= 0){
+    alert("Indique une durée en secondes.");
+    return;
+  }
+
+  total = value;
+  remaining = value;
+
+  updateTimer();
+
+  document.getElementById(
+    "durationPrompt"
+  ).classList.add("hidden");
+
+  document.getElementById(
+    "modalActions"
+  ).classList.remove("hidden");
+
+  document.getElementById(
+    "timer"
+  ).classList.remove("hidden");
 
   startTimerAuto();
 

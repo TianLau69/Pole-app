@@ -347,9 +347,7 @@ function allExercises() {
         false,
 
       seconds:
-        Number(exercise.seconds) ||
-        Number(exercise.duration) ||
-        parseDuration(exercise.duration)
+        Number(exercise.seconds) || null
 
     }))
 
@@ -553,19 +551,30 @@ function renderPicker() {
 
 
       const meta =
-        currentType === "exercise"
+        currentType === "figure"
 
           ? (
-              item.duration ||
-              formatSeconds(
-                item.seconds || 60
-              )
-            )
-
-          : (
               item.level ||
               ""
-            );
+            )
+
+          : "";
+
+
+      const durationField =
+        currentType === "exercise"
+
+          ? `
+            <input
+              type="number"
+              class="pickDuration"
+              data-id="${escapeAttribute(item.id)}"
+              min="1"
+              placeholder="Durée (s)"
+              onclick="event.preventDefault()">
+          `
+
+          : "";
 
 
       return `
@@ -593,6 +602,8 @@ function renderPicker() {
             </div>
 
           </div>
+
+          ${durationField}
 
         </label>
 
@@ -638,23 +649,56 @@ function createPlaylist() {
   }
 
 
-  const selected =
+  const checkboxes =
     Array.from(
       document.querySelectorAll(
         "#picker input[type='checkbox']:checked"
       )
-    ).map(
-      checkbox => checkbox.value
     );
 
 
-  if (!selected.length) {
+  if (!checkboxes.length) {
 
     alert(
       "Sélectionne au moins un élément."
     );
 
     return;
+  }
+
+
+  const selected = [];
+
+  for (const checkbox of checkboxes) {
+
+    const id = checkbox.value;
+
+    if (currentType !== "exercise") {
+      selected.push({ id, seconds: null });
+      continue;
+    }
+
+    const durationInput =
+      document.querySelector(
+        `#picker .pickDuration[data-id="${CSS.escape(id)}"]`
+      );
+
+    const seconds =
+      durationInput
+        ? Number(durationInput.value)
+        : 0;
+
+    if (!seconds || seconds <= 0) {
+
+      alert(
+        "Indique une durée (en secondes) pour chaque exercice sélectionné."
+      );
+
+      return;
+    }
+
+    selected.push({ id, seconds });
+
   }
 
 
@@ -899,6 +943,15 @@ function renderPlaylistCard(playlist) {
    RÉSOLUTION DES ÉLÉMENTS D'UNE PLAYLIST
    ========================================================= */
 
+function refId(ref) {
+  return ref && typeof ref === "object" ? ref.id : ref;
+}
+
+function refSeconds(ref) {
+  return ref && typeof ref === "object" ? Number(ref.seconds) || null : null;
+}
+
+
 function resolvePlaylistItems(playlist) {
 
   const available =
@@ -913,13 +966,27 @@ function resolvePlaylistItems(playlist) {
 
 
   return playlist.items
-    .map(id =>
-      available.find(
-        item =>
-          String(item.id) ===
-          String(id)
-      )
-    )
+    .map(ref => {
+
+      const id = refId(ref);
+      const seconds = refSeconds(ref);
+
+      const found =
+        available.find(
+          item =>
+            String(item.id) ===
+            String(id)
+        );
+
+      if (!found) return null;
+
+      if (playlist.type === "exercise") {
+        return { ...found, seconds: seconds || found.seconds || 60 };
+      }
+
+      return found;
+
+    })
     .filter(Boolean);
 
 }
@@ -1096,16 +1163,36 @@ function renderEditPicker(
   container.innerHTML =
     items.map(item => {
 
-      const checked =
-        selectedIds.some(
-          id =>
-            String(id) ===
+      const existingRef =
+        selectedIds.find(
+          ref =>
+            String(refId(ref)) ===
             String(item.id)
         );
+
+      const checked =
+        Boolean(existingRef);
 
 
       const image =
         getImage(item);
+
+
+      const durationField =
+        currentType === "exercise"
+
+          ? `
+            <input
+              type="number"
+              class="pickDuration"
+              data-id="${escapeAttribute(item.id)}"
+              min="1"
+              placeholder="Durée (s)"
+              value="${existingRef ? (refSeconds(existingRef) || "") : ""}"
+              onclick="event.preventDefault()">
+          `
+
+          : "";
 
 
       return `
@@ -1149,24 +1236,16 @@ function renderEditPicker(
             <div class="meta">
 
               ${
-                currentType === "exercise"
-
-                  ? escapeHTML(
-                      item.duration ||
-                      formatSeconds(
-                        item.seconds || 60
-                      )
-                    )
-
-                  : escapeHTML(
-                      item.level || ""
-                    )
-
+                currentType === "figure"
+                  ? escapeHTML(item.level || "")
+                  : ""
               }
 
             </div>
 
           </div>
+
+          ${durationField}
 
         </label>
 
@@ -1232,15 +1311,47 @@ function saveEdit() {
   }
 
 
-  const selected =
+  const checkboxes =
     Array.from(
       document.querySelectorAll(
         "#editPicker input[type='checkbox']:checked"
       )
-    ).map(
-      checkbox =>
-        checkbox.value
     );
+
+
+  const selected = [];
+
+  for (const checkbox of checkboxes) {
+
+    const id = checkbox.value;
+
+    if (currentType !== "exercise") {
+      selected.push({ id, seconds: null });
+      continue;
+    }
+
+    const durationInput =
+      document.querySelector(
+        `#editPicker .pickDuration[data-id="${CSS.escape(id)}"]`
+      );
+
+    const seconds =
+      durationInput
+        ? Number(durationInput.value)
+        : 0;
+
+    if (!seconds || seconds <= 0) {
+
+      alert(
+        "Indique une durée (en secondes) pour chaque exercice sélectionné."
+      );
+
+      return;
+    }
+
+    selected.push({ id, seconds });
+
+  }
 
 
   playlist.name =

@@ -139,9 +139,6 @@ function openExerciseForm(item) {
   document.getElementById("exerciseMuscles").value =
     item && item.muscles ? item.muscles : "";
 
-  document.getElementById("exerciseDuration").value =
-    item ? item.seconds : 60;
-
   document.getElementById("exercisePhoto").value = "";
 
   const preview = document.getElementById("exercisePreview");
@@ -209,8 +206,7 @@ function openExerciseFormById(id, isCustom) {
       program: e.program,
       custom: true,
       instructions: e.description,
-      muscles: e.muscles,
-      seconds: e.duration
+      muscles: e.muscles
     };
 
   } else {
@@ -288,9 +284,6 @@ async function saveExerciseForm() {
   const muscles =
     document.getElementById("exerciseMuscles").value.trim();
 
-  const duration =
-    Number(document.getElementById("exerciseDuration").value) || 60;
-
   const program =
     document.getElementById("exerciseProgram").value;
 
@@ -310,7 +303,6 @@ async function saveExerciseForm() {
       name,
       description,
       muscles,
-      duration,
       program,
       image: newImage || "",
       custom: true
@@ -327,7 +319,6 @@ async function saveExerciseForm() {
       exercise.name = name;
       exercise.description = description;
       exercise.muscles = muscles;
-      exercise.duration = duration;
       exercise.program = program;
       if (newImage) exercise.image = newImage;
       saveCustomExercises(exercises);
@@ -337,9 +328,7 @@ async function saveExerciseForm() {
 
     const partial = {
       name,
-      instructions: description,
-      seconds: duration,
-      duration: secondsToLabel(duration)
+      instructions: description
     };
 
     if (newImage) partial.image = newImage;

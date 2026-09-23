@@ -142,10 +142,10 @@ function getCustomExerciseList(programId) {
     .map(e => ({
       id: e.id,
       name: e.name,
-      duration: secondsToLabel(e.duration),
+      duration: e.seconds ? secondsToLabel(e.seconds) : "",
       kind: "custom",
       instructions: e.description || "",
-      seconds: Number(e.duration) || 60,
+      seconds: Number(e.seconds) || null,
       section: "Mes exercices ajoutés",
       image: e.image || "",
       custom: true
